@@ -1,17 +1,22 @@
-# AOLLMAN GitHub Portfolio
+# LIM JAEMIN Sketchbook Portfolio
 
-정적 개인 사이트입니다. `index.html`을 브라우저에서 바로 열어도 되고, GitHub Pages에 올려도 됩니다.
+Static GitHub Pages site for LIM JAEMIN.
 
-## 파일
+## Theme
 
-- `index.html`: 페이지 구조
-- `styles.css`: 스타일
-- `script.js`: GitHub API 호출 및 렌더링
+- Warm paper texture
+- Hand-drawn cat reference image
+- Live GitHub profile and repository data
 
-## 배포
+## Files
 
-1. GitHub에 저장소를 만듭니다.
-2. 이 폴더 내용을 커밋하고 푸시합니다.
-3. 저장소의 Pages 기능을 켭니다.
+- `index.html`: page structure
+- `styles.css`: sketchbook-inspired styling
+- `script.js`: GitHub API fetch and rendering
+- `assets/cat-sketch.jpg`: reference image used in the hero section
 
-개인 루트 사이트로 쓰려면 저장소 이름을 `AOLLMAN.github.io`로 만드는 편이 가장 단순합니다.
+## Deploy
+
+Push to the `main` branch of `AOLLMAN.github.io` to publish the site at:
+
+- `https://aollman.github.io/`

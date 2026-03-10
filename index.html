@@ -1,136 +1,146 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LIM JAEMIN | GitHub Portfolio</title>
+    <title>LIM JAEMIN | Sketchbook Portfolio</title>
     <meta
       name="description"
-      content="LIM JAEMIN GitHub profile portfolio powered by GitHub Pages."
+      content="A sketchbook-style GitHub portfolio for LIM JAEMIN."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=Space+Mono:wght@400;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="page-shell">
-      <header class="topbar">
-        <a class="brand" href="#home">LIM JAEMIN</a>
-        <nav class="nav">
-          <a href="#repos">Repos</a>
-          <a href="#activity">Activity</a>
-          <a href="https://github.com/AOLLMAN" target="_blank" rel="noreferrer"
-            >GitHub</a
-          >
-        </nav>
-      </header>
+    <div class="page-grain" aria-hidden="true"></div>
 
-      <main id="home">
-        <section class="hero panel">
-          <div class="hero-copy">
-            <p class="eyebrow">GitHub Pages Portfolio</p>
-            <h1 class="hero-title">LIM JAEMIN</h1>
-            <p class="hero-description" id="hero-description">
-              GitHub 프로필 정보를 불러오는 중입니다.
-            </p>
-            <div class="hero-actions">
-              <a
-                class="button primary"
-                id="profile-link"
-                href="https://github.com/AOLLMAN"
-                target="_blank"
-                rel="noreferrer"
-                >GitHub 프로필</a
-              >
-              <a class="button secondary" href="#repos">대표 저장소 보기</a>
-            </div>
-          </div>
-          <div class="hero-card">
-            <div class="status-pill" id="status-pill">Loading profile</div>
-            <img
-              class="avatar"
-              id="avatar"
-              src=""
-              alt="LIM JAEMIN GitHub avatar"
-            />
-            <div class="hero-meta">
-              <p class="mono" id="github-handle">LIM JAEMIN</p>
-              <h2 id="display-name">LIM JAEMIN</h2>
-              <p id="bio">프로필을 가져오는 중입니다.</p>
-            </div>
-          </div>
-        </section>
+    <header class="topbar">
+      <a class="wordmark" href="#top">LIM JAEMIN</a>
+      <nav class="topnav">
+        <a href="#about">About</a>
+        <a href="#repos">Repos</a>
+        <a href="#activity">Activity</a>
+      </nav>
+    </header>
 
-        <section class="stats-grid" id="stats-grid">
-          <article class="stat-card panel">
-            <p class="stat-label">Public Repos</p>
+    <main class="canvas" id="top">
+      <section class="hero paper-panel">
+        <div class="hero-copy">
+          <p class="eyebrow">Personal page / soft sketch mood</p>
+          <h1>LIM JAEMIN</h1>
+          <p class="lead" id="lead-copy">
+            Loading profile details from GitHub.
+          </p>
+
+          <div class="hero-actions">
+            <a
+              class="button ink"
+              id="profile-link"
+              href="https://github.com/AOLLMAN"
+              target="_blank"
+              rel="noreferrer"
+              >Open GitHub</a
+            >
+            <a class="button paper" href="#repos">See selected repos</a>
+          </div>
+
+          <div class="mini-notes">
+            <article class="mini-note">
+              <p class="mini-label">Current mood</p>
+              <p class="mini-value">soft, clean, hand-drawn</p>
+            </article>
+            <article class="mini-note">
+              <p class="mini-label">Focus</p>
+              <p class="mini-value" id="focus-line">Waiting for live data</p>
+            </article>
+            <article class="mini-note">
+              <p class="mini-label">Base</p>
+              <p class="mini-value" id="location-line">Locating profile</p>
+            </article>
+          </div>
+        </div>
+
+        <figure class="cat-card">
+          <img
+            src="assets/cat-sketch.jpg"
+            alt="A soft cat sketch on textured paper"
+          />
+          <figcaption>Reference image, now part of the page mood.</figcaption>
+        </figure>
+      </section>
+
+      <section class="overview" id="about">
+        <article class="paper-panel about-panel">
+          <p class="section-label">About</p>
+          <h2>A quiet portfolio with paper texture and live GitHub data.</h2>
+          <p class="body-copy" id="bio-copy">
+            Profile summary is loading.
+          </p>
+          <dl class="facts" id="facts-list"></dl>
+        </article>
+
+        <div class="stats-column">
+          <article class="paper-panel sticky-card tilt-left">
+            <p class="section-label">Public repos</p>
             <p class="stat-value" id="stat-repos">-</p>
           </article>
-          <article class="stat-card panel">
-            <p class="stat-label">Followers</p>
+          <article class="paper-panel sticky-card tilt-right">
+            <p class="section-label">Followers</p>
             <p class="stat-value" id="stat-followers">-</p>
           </article>
-          <article class="stat-card panel">
-            <p class="stat-label">Stars Earned</p>
+          <article class="paper-panel sticky-card tilt-left">
+            <p class="section-label">Stars</p>
             <p class="stat-value" id="stat-stars">-</p>
           </article>
-          <article class="stat-card panel">
-            <p class="stat-label">Started In</p>
-            <p class="stat-value" id="stat-since">-</p>
+          <article class="paper-panel sticky-card tilt-right">
+            <p class="section-label">Top language</p>
+            <p class="stat-value small" id="stat-language">-</p>
           </article>
-        </section>
+        </div>
+      </section>
 
-        <section class="details-grid">
-          <article class="panel detail-card">
-            <p class="section-tag">Profile Snapshot</p>
-            <div class="detail-list" id="profile-details"></div>
-          </article>
-          <article class="panel detail-card">
-            <p class="section-tag">Language Pulse</p>
-            <div class="language-list" id="language-list"></div>
-          </article>
-        </section>
-
-        <section class="panel repos-section" id="repos">
-          <div class="section-heading">
-            <div>
-              <p class="section-tag">Selected Work</p>
-              <h2>대표 저장소</h2>
-            </div>
-            <p class="section-caption">
-              스타 수와 최근 업데이트를 기준으로 자동 정렬합니다.
-            </p>
+      <section class="paper-panel repo-panel" id="repos">
+        <div class="section-head">
+          <div>
+            <p class="section-label">Selected repos</p>
+            <h2>Work pinned by stars and recent updates.</h2>
           </div>
-          <div class="repo-grid" id="repo-grid"></div>
-        </section>
+          <p class="section-note" id="repo-note">
+            The list updates directly from GitHub.
+          </p>
+        </div>
 
-        <section class="panel activity-section" id="activity">
-          <div class="section-heading">
-            <div>
-              <p class="section-tag">Recent Pushes</p>
-              <h2>최근 작업 흐름</h2>
-            </div>
-            <p class="section-caption">최근 푸시된 저장소 기준입니다.</p>
+        <div class="repo-grid" id="repo-grid"></div>
+      </section>
+
+      <section class="paper-panel activity-panel" id="activity">
+        <div class="section-head">
+          <div>
+            <p class="section-label">Recent rhythm</p>
+            <h2>Latest pushes across public repositories.</h2>
           </div>
-          <div class="timeline" id="timeline"></div>
-        </section>
-      </main>
-    </div>
+          <p class="section-note">A compact timeline of recent work.</p>
+        </div>
+
+        <div class="timeline" id="timeline"></div>
+      </section>
+    </main>
 
     <template id="repo-template">
       <article class="repo-card">
-        <div class="repo-card-head">
+        <div class="repo-topline">
           <h3 class="repo-title"></h3>
           <span class="repo-language"></span>
         </div>
         <p class="repo-description"></p>
         <div class="repo-meta">
           <span class="repo-stars"></span>
-          <span class="repo-updated"></span>
+          <span class="repo-date"></span>
         </div>
         <a class="repo-link" target="_blank" rel="noreferrer">Open repo</a>
       </article>
@@ -138,11 +148,10 @@
 
     <template id="timeline-template">
       <article class="timeline-item">
-        <div class="timeline-marker"></div>
-        <div class="timeline-body">
-          <p class="timeline-date"></p>
+        <p class="timeline-date"></p>
+        <div class="timeline-content">
           <h3 class="timeline-title"></h3>
-          <p class="timeline-text"></p>
+          <p class="timeline-copy"></p>
         </div>
       </article>
     </template>
