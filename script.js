@@ -1,4 +1,5 @@
 const GITHUB_USERNAME = "AOLLMAN";
+const DISPLAY_NAME = "LIM JAEMIN";
 
 const elements = {
   avatar: document.querySelector("#avatar"),
@@ -70,11 +71,11 @@ function renderProfile(profile, repos) {
     .sort((left, right) => new Date(right.pushed_at) - new Date(left.pushed_at))
     .slice(0, 5);
 
-  document.title = `${profile.login} | GitHub Portfolio`;
+  document.title = `${DISPLAY_NAME} | GitHub Portfolio`;
   elements.avatar.src = profile.avatar_url;
-  elements.avatar.alt = `${profile.login} GitHub avatar`;
-  elements.displayName.textContent = profile.name || profile.login;
-  elements.githubHandle.textContent = `@${profile.login}`;
+  elements.avatar.alt = `${DISPLAY_NAME} GitHub avatar`;
+  elements.displayName.textContent = DISPLAY_NAME;
+  elements.githubHandle.textContent = DISPLAY_NAME;
   elements.bio.textContent =
     profile.bio || "GitHub 프로필에 등록된 소개 문구가 없습니다.";
   elements.heroDescription.textContent = buildHeroCopy(profile, publicRepos.length);
@@ -93,13 +94,14 @@ function renderProfile(profile, repos) {
 
 function buildHeroCopy(profile, repoCount) {
   const segments = [
-    `${profile.login}의 GitHub 프로필을 기반으로 만든 실시간 포트폴리오 페이지입니다.`,
-    `${formatNumber(repoCount)}개의 오너 저장소와`,
-    `${formatNumber(profile.followers)}명의 팔로워 정보를 한 번에 보여줍니다.`,
+    `Live portfolio for ${DISPLAY_NAME}, powered by GitHub profile data.`,
+    `${formatNumber(repoCount)} public repositories and ${formatNumber(
+      profile.followers
+    )} followers in one place.`,
   ];
 
   if (profile.location) {
-    segments.push(`현재 위치는 ${profile.location}으로 표시됩니다.`);
+    segments.push(`Location: ${profile.location}.`);
   }
 
   return segments.join(" ");
@@ -107,17 +109,21 @@ function buildHeroCopy(profile, repoCount) {
 
 function renderProfileDetails(profile) {
   const rows = [
-    ["GitHub", profile.html_url.replace("https://", "")],
-    ["Company", profile.company || "Not listed"],
-    ["Location", profile.location || "Not listed"],
-    ["Blog", profile.blog || "Not listed"],
-    ["Member Since", formatDate(profile.created_at)],
+    { label: "GitHub", value: "Open profile", href: profile.html_url },
+    { label: "Company", value: profile.company || "Not listed" },
+    { label: "Location", value: profile.location || "Not listed" },
+    {
+      label: "Blog",
+      value: profile.blog ? "Open site" : "Not listed",
+      href: profile.blog ? toExternalUrl(profile.blog) : null,
+    },
+    { label: "Member Since", value: formatDate(profile.created_at) },
   ];
 
   const list = document.createElement("dl");
   list.className = "detail-list";
 
-  rows.forEach(([label, value]) => {
+  rows.forEach(({ label, value, href }) => {
     const row = document.createElement("div");
     row.className = "detail-row";
 
@@ -125,9 +131,19 @@ function renderProfileDetails(profile) {
     term.textContent = label;
 
     const description = document.createElement("dd");
-    description.textContent = value;
     description.style.margin = "0";
     description.style.textAlign = "right";
+
+    if (href) {
+      const link = document.createElement("a");
+      link.href = href;
+      link.target = "_blank";
+      link.rel = "noreferrer";
+      link.textContent = value;
+      description.append(link);
+    } else {
+      description.textContent = value;
+    }
 
     row.append(term, description);
     list.append(row);
@@ -264,4 +280,12 @@ function formatDate(value) {
 
 function formatNumber(value) {
   return new Intl.NumberFormat("en-US").format(value);
+}
+
+function toExternalUrl(value) {
+  if (value.startsWith("http://") || value.startsWith("https://")) {
+    return value;
+  }
+
+  return `https://${value}`;
 }
