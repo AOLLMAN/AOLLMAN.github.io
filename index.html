@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LIM JAEMIN | Sketchbook Portfolio</title>
+    <title>LIM JAEMIN | 스케치북 포트폴리오</title>
     <meta
       name="description"
-      content="A sketchbook-style GitHub portfolio for LIM JAEMIN."
+      content="LIM JAEMIN의 스케치북 스타일 GitHub 포트폴리오입니다."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -22,19 +22,19 @@
     <header class="topbar">
       <a class="wordmark" href="#top">LIM JAEMIN</a>
       <nav class="topnav">
-        <a href="#about">About</a>
-        <a href="#repos">Repos</a>
-        <a href="#activity">Activity</a>
+        <a href="#about">소개</a>
+        <a href="#repos">저장소</a>
+        <a href="#activity">활동</a>
       </nav>
     </header>
 
     <main class="canvas" id="top">
       <section class="hero paper-panel">
         <div class="hero-copy">
-          <p class="eyebrow">Personal page / soft sketch mood</p>
+          <p class="eyebrow">개인 페이지 / 손그림 스케치 무드</p>
           <h1>LIM JAEMIN</h1>
           <p class="lead" id="lead-copy">
-            Loading profile details from GitHub.
+            GitHub에서 프로필 정보를 불러오는 중입니다.
           </p>
 
           <div class="hero-actions">
@@ -44,23 +44,23 @@
               href="https://github.com/AOLLMAN"
               target="_blank"
               rel="noreferrer"
-              >Open GitHub</a
+              >GitHub 열기</a
             >
-            <a class="button paper" href="#repos">See selected repos</a>
+            <a class="button paper" href="#repos">대표 저장소 보기</a>
           </div>
 
           <div class="mini-notes">
             <article class="mini-note">
-              <p class="mini-label">Current mood</p>
-              <p class="mini-value">soft, clean, hand-drawn</p>
+              <p class="mini-label">현재 분위기</p>
+              <p class="mini-value">부드럽고 정돈된 손그림 감성</p>
             </article>
             <article class="mini-note">
-              <p class="mini-label">Focus</p>
-              <p class="mini-value" id="focus-line">Waiting for live data</p>
+              <p class="mini-label">집중 분야</p>
+              <p class="mini-value" id="focus-line">실시간 데이터를 기다리는 중</p>
             </article>
             <article class="mini-note">
-              <p class="mini-label">Base</p>
-              <p class="mini-value" id="location-line">Locating profile</p>
+              <p class="mini-label">활동 지역</p>
+              <p class="mini-value" id="location-line">프로필 위치 확인 중</p>
             </article>
           </div>
         </div>
@@ -68,37 +68,37 @@
         <figure class="cat-card">
           <img
             src="assets/cat-sketch.jpg"
-            alt="A soft cat sketch on textured paper"
+            alt="종이 질감 위에 그린 부드러운 고양이 스케치"
           />
-          <figcaption>Reference image, now part of the page mood.</figcaption>
+          <figcaption>페이지 분위기의 기준이 되는 참고 이미지입니다.</figcaption>
         </figure>
       </section>
 
       <section class="overview" id="about">
         <article class="paper-panel about-panel">
-          <p class="section-label">About</p>
-          <h2>A quiet portfolio with paper texture and live GitHub data.</h2>
+          <p class="section-label">소개</p>
+          <h2>종이 질감과 GitHub 데이터로 정리한 차분한 포트폴리오.</h2>
           <p class="body-copy" id="bio-copy">
-            Profile summary is loading.
+            프로필 요약을 불러오는 중입니다.
           </p>
           <dl class="facts" id="facts-list"></dl>
         </article>
 
         <div class="stats-column">
           <article class="paper-panel sticky-card tilt-left">
-            <p class="section-label">Public repos</p>
+            <p class="section-label">공개 저장소</p>
             <p class="stat-value" id="stat-repos">-</p>
           </article>
           <article class="paper-panel sticky-card tilt-right">
-            <p class="section-label">Followers</p>
+            <p class="section-label">팔로워</p>
             <p class="stat-value" id="stat-followers">-</p>
           </article>
           <article class="paper-panel sticky-card tilt-left">
-            <p class="section-label">Stars</p>
+            <p class="section-label">스타 수</p>
             <p class="stat-value" id="stat-stars">-</p>
           </article>
           <article class="paper-panel sticky-card tilt-right">
-            <p class="section-label">Top language</p>
+            <p class="section-label">주요 언어</p>
             <p class="stat-value small" id="stat-language">-</p>
           </article>
         </div>
@@ -107,11 +107,11 @@
       <section class="paper-panel repo-panel" id="repos">
         <div class="section-head">
           <div>
-            <p class="section-label">Selected repos</p>
-            <h2>Work pinned by stars and recent updates.</h2>
+            <p class="section-label">대표 저장소</p>
+            <h2>스타 수와 최근 업데이트를 기준으로 고른 작업들.</h2>
           </div>
           <p class="section-note" id="repo-note">
-            The list updates directly from GitHub.
+            목록은 GitHub 데이터로 자동 갱신됩니다.
           </p>
         </div>
 
@@ -121,10 +121,10 @@
       <section class="paper-panel activity-panel" id="activity">
         <div class="section-head">
           <div>
-            <p class="section-label">Recent rhythm</p>
-            <h2>Latest pushes across public repositories.</h2>
+            <p class="section-label">최근 흐름</p>
+            <h2>공개 저장소의 최신 푸시 기록.</h2>
           </div>
-          <p class="section-note">A compact timeline of recent work.</p>
+          <p class="section-note">최근 작업을 간단한 타임라인으로 정리했습니다.</p>
         </div>
 
         <div class="timeline" id="timeline"></div>
@@ -142,7 +142,7 @@
           <span class="repo-stars"></span>
           <span class="repo-date"></span>
         </div>
-        <a class="repo-link" target="_blank" rel="noreferrer">Open repo</a>
+        <a class="repo-link" target="_blank" rel="noreferrer">저장소 열기</a>
       </article>
     </template>
 

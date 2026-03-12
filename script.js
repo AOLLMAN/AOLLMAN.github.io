@@ -72,21 +72,24 @@ function renderProfile(profile, repos) {
     .sort((left, right) => new Date(right.pushed_at) - new Date(left.pushed_at))
     .slice(0, 5);
 
-  document.title = `${DISPLAY_NAME} | Sketchbook Portfolio`;
+  document.title = `${DISPLAY_NAME} | 스케치북 포트폴리오`;
   elements.profileLink.href = profile.html_url;
   elements.leadCopy.textContent = buildLead(profile, publicRepos.length);
-  elements.bioCopy.textContent =
-    profile.bio ||
-    `${DISPLAY_NAME} keeps this page simple: soft visuals, public code, and current work in one place.`;
+  elements.bioCopy.textContent = buildBio(
+    profile,
+    publicRepos.length,
+    totalStars,
+    topLanguage
+  );
   elements.focusLine.textContent = topLanguage
-    ? `building with ${topLanguage}`
-    : "exploring new ideas";
-  elements.locationLine.textContent = profile.location || "location not listed";
+    ? `${topLanguage} 중심으로 작업 중`
+    : "새로운 아이디어를 탐색 중";
+  elements.locationLine.textContent = profile.location || "위치 정보 없음";
   elements.statRepos.textContent = formatNumber(profile.public_repos);
   elements.statFollowers.textContent = formatNumber(profile.followers);
   elements.statStars.textContent = formatNumber(totalStars);
-  elements.statLanguage.textContent = topLanguage || "mixed stack";
-  elements.repoNote.textContent = `Showing ${featuredRepos.length} highlighted public repositories.`;
+  elements.statLanguage.textContent = topLanguage || "여러 언어";
+  elements.repoNote.textContent = `대표 공개 저장소 ${featuredRepos.length}개를 표시하고 있습니다.`;
 
   renderFacts(profile);
   renderRepos(featuredRepos);
@@ -95,12 +98,31 @@ function renderProfile(profile, repos) {
 
 function buildLead(profile, repoCount) {
   const parts = [
-    `${DISPLAY_NAME}'s GitHub-backed sketchbook page.`,
-    `${formatNumber(repoCount)} public repositories collected into a warm, hand-drawn layout.`,
+    `${DISPLAY_NAME}의 GitHub 기반 스케치북 페이지입니다.`,
+    `${formatNumber(repoCount)}개의 공개 저장소를 따뜻한 손그림 스타일 레이아웃에 담았습니다.`,
   ];
 
   if (profile.location) {
-    parts.push(`Based in ${profile.location}.`);
+    parts.push(`활동 지역은 ${profile.location}입니다.`);
+  }
+
+  return parts.join(" ");
+}
+
+function buildBio(profile, repoCount, totalStars, topLanguage) {
+  const parts = [
+    `${DISPLAY_NAME}의 공개 코드와 최근 작업 흐름을 종이 질감의 한 화면에 정리한 개인 페이지입니다.`,
+    `현재 공개 저장소는 ${formatNumber(repoCount)}개이고, 누적 스타 수는 ${formatNumber(
+      totalStars
+    )}개입니다.`,
+  ];
+
+  if (topLanguage) {
+    parts.push(`가장 많이 보이는 언어는 ${topLanguage}입니다.`);
+  }
+
+  if (profile.location) {
+    parts.push(`활동 지역은 ${profile.location}으로 표시됩니다.`);
   }
 
   return parts.join(" ");
@@ -108,10 +130,14 @@ function buildLead(profile, repoCount) {
 
 function renderFacts(profile) {
   const rows = [
-    { label: "GitHub", value: "Open profile", href: profile.html_url },
-    { label: "Company", value: profile.company || "Not listed" },
-    { label: "Blog", value: profile.blog ? "Visit site" : "Not listed", href: profile.blog ? toExternalUrl(profile.blog) : null },
-    { label: "Joined", value: formatDate(profile.created_at) },
+    { label: "GitHub", value: "프로필 열기", href: profile.html_url },
+    { label: "소속", value: profile.company || "미등록" },
+    {
+      label: "블로그",
+      value: profile.blog ? "사이트 열기" : "미등록",
+      href: profile.blog ? toExternalUrl(profile.blog) : null,
+    },
+    { label: "가입일", value: formatDate(profile.created_at) },
   ];
 
   const fragment = document.createDocumentFragment();
@@ -146,7 +172,7 @@ function renderFacts(profile) {
 function renderRepos(repos) {
   if (repos.length === 0) {
     elements.repoGrid.innerHTML =
-      '<div class="empty-state">No public repositories are available yet.</div>';
+      '<div class="empty-state">표시할 공개 저장소가 아직 없습니다.</div>';
     return;
   }
 
@@ -155,11 +181,10 @@ function renderRepos(repos) {
   repos.forEach((repo) => {
     const node = repoTemplate.content.firstElementChild.cloneNode(true);
     node.querySelector(".repo-title").textContent = repo.name;
-    node.querySelector(".repo-language").textContent = repo.language || "Mixed";
-    node.querySelector(".repo-description").textContent =
-      repo.description || "A quiet repository with no summary written yet.";
-    node.querySelector(".repo-stars").textContent = `Stars ${repo.stargazers_count}`;
-    node.querySelector(".repo-date").textContent = `Updated ${formatDate(
+    node.querySelector(".repo-language").textContent = repo.language || "기타";
+    node.querySelector(".repo-description").textContent = buildRepoSummary(repo);
+    node.querySelector(".repo-stars").textContent = `스타 ${repo.stargazers_count}`;
+    node.querySelector(".repo-date").textContent = `업데이트 ${formatDate(
       repo.pushed_at
     )}`;
 
@@ -175,7 +200,7 @@ function renderRepos(repos) {
 function renderTimeline(repos) {
   if (repos.length === 0) {
     elements.timeline.innerHTML =
-      '<div class="empty-state">Recent public activity will appear here.</div>';
+      '<div class="empty-state">최근 공개 활동이 여기에 표시됩니다.</div>';
     return;
   }
 
@@ -185,8 +210,7 @@ function renderTimeline(repos) {
     const node = timelineTemplate.content.firstElementChild.cloneNode(true);
     node.querySelector(".timeline-date").textContent = formatDate(repo.pushed_at);
     node.querySelector(".timeline-title").textContent = repo.name;
-    node.querySelector(".timeline-copy").textContent =
-      repo.description || "Updated recently, with the repository summary left blank.";
+    node.querySelector(".timeline-copy").textContent = buildTimelineCopy(repo);
     fragment.append(node);
   });
 
@@ -196,13 +220,13 @@ function renderTimeline(repos) {
 function renderError(error) {
   const message =
     error.status === 403
-      ? "GitHub API rate limit reached. Try refreshing in a little while."
-      : "GitHub profile data could not be loaded right now.";
+      ? "GitHub API 요청 한도에 도달했습니다. 잠시 후 다시 새로고침해 주세요."
+      : "지금은 GitHub 프로필 데이터를 불러올 수 없습니다.";
 
   elements.leadCopy.textContent = message;
   elements.bioCopy.textContent = message;
-  elements.focusLine.textContent = "live data unavailable";
-  elements.locationLine.textContent = "check network";
+  elements.focusLine.textContent = "실시간 데이터를 불러올 수 없음";
+  elements.locationLine.textContent = "네트워크 상태 확인 필요";
   elements.repoGrid.innerHTML = `<div class="error-state">${message}</div>`;
   elements.timeline.innerHTML = `<div class="error-state">${message}</div>`;
   elements.factsList.innerHTML = `<div class="error-state">${message}</div>`;
@@ -219,8 +243,34 @@ function buildLanguageMap(repos) {
   }, {});
 }
 
+function buildRepoSummary(repo) {
+  const parts = [];
+
+  if (repo.language) {
+    parts.push(`${repo.language} 중심으로 구성된`);
+  } else {
+    parts.push("여러 기술이 함께 쓰인");
+  }
+
+  parts.push("공개 저장소입니다.");
+
+  if (repo.homepage) {
+    parts.push("연결된 외부 페이지도 함께 운영 중입니다.");
+  }
+
+  return parts.join(" ");
+}
+
+function buildTimelineCopy(repo) {
+  if (repo.language) {
+    return `${repo.language} 관련 작업이 최근에 업데이트되었습니다.`;
+  }
+
+  return "최근에 푸시된 공개 저장소입니다.";
+}
+
 function formatDate(value) {
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat("ko-KR", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -228,7 +278,7 @@ function formatDate(value) {
 }
 
 function formatNumber(value) {
-  return new Intl.NumberFormat("en-US").format(value);
+  return new Intl.NumberFormat("ko-KR").format(value);
 }
 
 function toExternalUrl(value) {
