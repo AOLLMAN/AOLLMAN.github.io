@@ -204,7 +204,7 @@ img {
 
 .mini-notes {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
   margin-top: 28px;
 }
@@ -232,6 +232,14 @@ img {
   margin-top: 8px;
   font-size: 0.92rem;
   line-height: 1.6;
+}
+
+#supabase-status[data-state="connected"] {
+  color: #2f5a3b;
+}
+
+#supabase-status[data-state="error"] {
+  color: #8b2d2d;
 }
 
 .cat-card {

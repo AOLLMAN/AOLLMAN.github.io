@@ -1,5 +1,10 @@
 const GITHUB_USERNAME = "AOLLMAN";
 const DISPLAY_NAME = "LIM JAEMIN";
+const SUPABASE_URL = "https://ymxehuxhsigebqlutmey.supabase.co";
+// Public browser key for the linked project. Future tables must still use RLS.
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlteGVodXhoc2lnZWJxbHV0bWV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2OTE2MjQsImV4cCI6MjA4OTI2NzYyNH0.PjcwOAdHzjrIxgYVyypoBg150mu3pnZZHNKcYnLLOLI";
+const SUPABASE_PROJECT_REF = new URL(SUPABASE_URL).hostname.split(".")[0];
 
 const elements = {
   bioCopy: document.querySelector("#bio-copy"),
@@ -14,6 +19,7 @@ const elements = {
   statLanguage: document.querySelector("#stat-language"),
   statRepos: document.querySelector("#stat-repos"),
   statStars: document.querySelector("#stat-stars"),
+  supabaseStatus: document.querySelector("#supabase-status"),
   timeline: document.querySelector("#timeline"),
 };
 
@@ -23,18 +29,30 @@ const timelineTemplate = document.querySelector("#timeline-template");
 init();
 
 async function init() {
-  try {
-    const [profile, repos] = await Promise.all([
-      fetchJson(`https://api.github.com/users/${GITHUB_USERNAME}`),
-      fetchJson(
-        `https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100&sort=updated&type=owner`
-      ),
-    ]);
+  const [githubResult, supabaseResult] = await Promise.allSettled([
+    loadGithubData(),
+    checkSupabaseConnection(),
+  ]);
 
-    renderProfile(profile, repos);
-  } catch (error) {
-    renderError(error);
+  renderSupabaseStatus(supabaseResult);
+
+  if (githubResult.status === "fulfilled") {
+    renderProfile(githubResult.value.profile, githubResult.value.repos);
+    return;
   }
+
+  renderError(githubResult.reason);
+}
+
+async function loadGithubData() {
+  const [profile, repos] = await Promise.all([
+    fetchJson(`https://api.github.com/users/${GITHUB_USERNAME}`),
+    fetchJson(
+      `https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100&sort=updated&type=owner`
+    ),
+  ]);
+
+  return { profile, repos };
 }
 
 async function fetchJson(url) {
@@ -47,6 +65,54 @@ async function fetchJson(url) {
   }
 
   return response.json();
+}
+
+async function checkSupabaseConnection() {
+  const response = await fetch(`${SUPABASE_URL}/auth/v1/settings`, {
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    const error = new Error(`Supabase request failed with ${response.status}`);
+    error.status = response.status;
+    throw error;
+  }
+
+  const settings = await response.json();
+
+  return {
+    emailAuthEnabled: Boolean(settings.external?.email),
+    signupsOpen: !settings.disable_signup,
+  };
+}
+
+function renderSupabaseStatus(result) {
+  if (!elements.supabaseStatus) {
+    return;
+  }
+
+  if (result.status === "fulfilled") {
+    const details = [`${SUPABASE_PROJECT_REF} connected`];
+
+    if (result.value.emailAuthEnabled) {
+      details.push("email auth on");
+    }
+
+    if (result.value.signupsOpen) {
+      details.push("signup open");
+    }
+
+    elements.supabaseStatus.textContent = details.join(" · ");
+    elements.supabaseStatus.dataset.state = "connected";
+    return;
+  }
+
+  elements.supabaseStatus.textContent = "connection failed";
+  elements.supabaseStatus.dataset.state = "error";
 }
 
 function renderProfile(profile, repos) {
