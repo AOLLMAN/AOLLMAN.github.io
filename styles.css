@@ -202,6 +202,12 @@ img {
   background: rgba(255, 255, 255, 0.36);
 }
 
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  transform: none;
+}
+
 .mini-notes {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -232,14 +238,6 @@ img {
   margin-top: 8px;
   font-size: 0.92rem;
   line-height: 1.6;
-}
-
-#supabase-status[data-state="connected"] {
-  color: #2f5a3b;
-}
-
-#supabase-status[data-state="error"] {
-  color: #8b2d2d;
 }
 
 .cat-card {
@@ -340,7 +338,8 @@ img {
 }
 
 .repo-panel,
-.activity-panel {
+.activity-panel,
+.guestbook-panel {
   padding: 30px;
 }
 
@@ -432,6 +431,152 @@ img {
   margin: 10px 0 0;
 }
 
+.guestbook-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.85fr) minmax(0, 1.15fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.guestbook-form,
+.guestbook-feed,
+.guestbook-entry {
+  position: relative;
+  background: rgba(255, 255, 255, 0.36);
+  border: 1.5px solid rgba(35, 31, 26, 0.16);
+  box-shadow: 0 10px 20px rgba(49, 36, 18, 0.08);
+}
+
+.guestbook-form,
+.guestbook-feed {
+  border-radius: 24px;
+  padding: 22px;
+}
+
+.guestbook-form {
+  display: grid;
+  gap: 16px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field-label {
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  border: 1.5px solid rgba(35, 31, 26, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.54);
+  padding: 14px 16px;
+  color: var(--ink);
+  font: inherit;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 140px;
+}
+
+.field input:disabled,
+.field textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: rgba(35, 31, 26, 0.42);
+  box-shadow: 0 0 0 3px rgba(181, 139, 88, 0.16);
+}
+
+.form-footer {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: end;
+}
+
+.form-hint,
+.form-status {
+  margin: 0;
+  color: rgba(35, 31, 26, 0.74);
+  line-height: 1.7;
+}
+
+.form-hint {
+  max-width: 34ch;
+  font-size: 0.84rem;
+}
+
+.form-status {
+  font-size: 0.9rem;
+}
+
+.form-status[data-state="success"],
+#supabase-status[data-state="connected"] {
+  color: #2f5a3b;
+}
+
+.form-status[data-state="error"],
+#supabase-status[data-state="error"] {
+  color: #8b2d2d;
+}
+
+.form-status[data-state="submitting"] {
+  color: #7b5a2a;
+}
+
+.guestbook-feed {
+  display: grid;
+  gap: 12px;
+}
+
+.guestbook-entry {
+  border-radius: 20px;
+  padding: 18px;
+}
+
+.guestbook-entry-head {
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.guestbook-name,
+.guestbook-date,
+.guestbook-message {
+  margin: 0;
+}
+
+.guestbook-name {
+  font-family: "Fraunces", serif;
+  font-size: 1.25rem;
+}
+
+.guestbook-date {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+}
+
+.guestbook-message {
+  margin-top: 12px;
+  color: rgba(35, 31, 26, 0.78);
+  line-height: 1.8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .empty-state,
 .error-state {
   padding: 18px;
@@ -444,7 +589,8 @@ img {
 .hero,
 .overview,
 .repo-panel,
-.activity-panel {
+.activity-panel,
+.guestbook-panel {
   animation: slideUp 520ms ease both;
 }
 
@@ -458,6 +604,10 @@ img {
 
 .activity-panel {
   animation-delay: 180ms;
+}
+
+.guestbook-panel {
+  animation-delay: 240ms;
 }
 
 @keyframes slideUp {
@@ -475,7 +625,8 @@ img {
 @media (max-width: 980px) {
   .hero,
   .overview,
-  .repo-grid {
+  .repo-grid,
+  .guestbook-layout {
     grid-template-columns: 1fr;
   }
 
@@ -509,7 +660,8 @@ img {
   .hero,
   .about-panel,
   .repo-panel,
-  .activity-panel {
+  .activity-panel,
+  .guestbook-panel {
     padding: 22px;
   }
 
@@ -524,7 +676,9 @@ img {
 
   .fact-row,
   .repo-topline,
-  .repo-meta {
+  .repo-meta,
+  .guestbook-entry-head,
+  .form-footer {
     flex-direction: column;
     gap: 8px;
   }

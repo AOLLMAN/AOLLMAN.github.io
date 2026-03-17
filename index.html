@@ -25,6 +25,7 @@
         <a href="#about">소개</a>
         <a href="#repos">저장소</a>
         <a href="#activity">활동</a>
+        <a href="#guestbook">방명록</a>
       </nav>
     </header>
 
@@ -63,9 +64,9 @@
               <p class="mini-value" id="location-line">프로필 위치 확인 중</p>
             </article>
             <article class="mini-note">
-              <p class="mini-label">Supabase</p>
+              <p class="mini-label">방명록 DB</p>
               <p class="mini-value" id="supabase-status" data-state="checking">
-                연결 확인 중
+                준비 상태 확인 중
               </p>
             </article>
           </div>
@@ -134,6 +135,63 @@
 
         <div class="timeline" id="timeline"></div>
       </section>
+
+      <section class="paper-panel guestbook-panel" id="guestbook">
+        <div class="section-head">
+          <div>
+            <p class="section-label">방명록</p>
+            <h2>짧은 인사와 흔적을 남기는 작은 메모 보드.</h2>
+          </div>
+          <p class="section-note" id="guestbook-note">
+            Supabase에서 방명록을 불러오는 중입니다.
+          </p>
+        </div>
+
+        <div class="guestbook-layout">
+          <form class="guestbook-form" id="guestbook-form">
+            <label class="field">
+              <span class="field-label">이름</span>
+              <input
+                id="guestbook-name"
+                name="name"
+                type="text"
+                maxlength="40"
+                placeholder="닉네임 또는 이름"
+                required
+              />
+            </label>
+
+            <label class="field">
+              <span class="field-label">메시지</span>
+              <textarea
+                id="guestbook-message"
+                name="message"
+                rows="6"
+                maxlength="280"
+                placeholder="방문한 흔적을 남겨 주세요."
+                required
+              ></textarea>
+            </label>
+
+            <div class="form-footer">
+              <p class="form-hint">
+                최대 280자. 공개 페이지이므로 전화번호나 메일 주소 같은 개인정보는 적지 않는 편이 안전합니다.
+              </p>
+              <button class="button ink" id="guestbook-submit" type="submit">
+                남기기
+              </button>
+            </div>
+
+            <p class="form-status" id="guestbook-form-status" data-state="idle">
+              Supabase에 저장됩니다.
+            </p>
+          </form>
+
+          <div class="guestbook-feed" id="guestbook-list">
+            <div class="empty-state">최근 방명록이 여기에 표시됩니다.</div>
+          </div>
+        </div>
+      </section>
     </main>
 
     <template id="repo-template">
@@ -158,6 +216,16 @@
           <h3 class="timeline-title"></h3>
           <p class="timeline-copy"></p>
         </div>
+      </article>
+    </template>
+
+    <template id="guestbook-entry-template">
+      <article class="guestbook-entry">
+        <div class="guestbook-entry-head">
+          <p class="guestbook-name"></p>
+          <p class="guestbook-date"></p>
+        </div>
+        <p class="guestbook-message"></p>
       </article>
     </template>
 

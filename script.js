@@ -1,15 +1,22 @@
 const GITHUB_USERNAME = "AOLLMAN";
 const DISPLAY_NAME = "LIM JAEMIN";
 const SUPABASE_URL = "https://ymxehuxhsigebqlutmey.supabase.co";
-// Public browser key for the linked project. Future tables must still use RLS.
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlteGVodXhoc2lnZWJxbHV0bWV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2OTE2MjQsImV4cCI6MjA4OTI2NzYyNH0.PjcwOAdHzjrIxgYVyypoBg150mu3pnZZHNKcYnLLOLI";
-const SUPABASE_PROJECT_REF = new URL(SUPABASE_URL).hostname.split(".")[0];
+const GUESTBOOK_TABLE = "guestbook_entries";
+const GUESTBOOK_LIMIT = 12;
 
 const elements = {
   bioCopy: document.querySelector("#bio-copy"),
   factsList: document.querySelector("#facts-list"),
   focusLine: document.querySelector("#focus-line"),
+  guestbookForm: document.querySelector("#guestbook-form"),
+  guestbookFormStatus: document.querySelector("#guestbook-form-status"),
+  guestbookList: document.querySelector("#guestbook-list"),
+  guestbookMessage: document.querySelector("#guestbook-message"),
+  guestbookName: document.querySelector("#guestbook-name"),
+  guestbookNote: document.querySelector("#guestbook-note"),
+  guestbookSubmit: document.querySelector("#guestbook-submit"),
   leadCopy: document.querySelector("#lead-copy"),
   locationLine: document.querySelector("#location-line"),
   profileLink: document.querySelector("#profile-link"),
@@ -25,23 +32,44 @@ const elements = {
 
 const repoTemplate = document.querySelector("#repo-template");
 const timelineTemplate = document.querySelector("#timeline-template");
+const guestbookEntryTemplate = document.querySelector("#guestbook-entry-template");
 
+let guestbookEntries = [];
+let guestbookWritable = false;
+let guestbookSubmitting = false;
+
+bindEvents();
 init();
 
+function bindEvents() {
+  elements.guestbookForm?.addEventListener("submit", handleGuestbookSubmit);
+}
+
 async function init() {
-  const [githubResult, supabaseResult] = await Promise.allSettled([
+  syncGuestbookFormState();
+  setGuestbookFormStatus("idle", "이름과 메시지를 남기면 바로 목록에 반영됩니다.");
+
+  const [githubResult, guestbookResult] = await Promise.allSettled([
     loadGithubData(),
-    checkSupabaseConnection(),
+    loadGuestbookEntries(),
   ]);
 
-  renderSupabaseStatus(supabaseResult);
+  if (guestbookResult.status === "fulfilled") {
+    guestbookEntries = guestbookResult.value;
+    guestbookWritable = true;
+    syncGuestbookFormState();
+    renderGuestbookEntries(guestbookEntries);
+    renderGuestbookReady(guestbookEntries.length);
+  } else {
+    renderGuestbookError(guestbookResult.reason);
+  }
 
   if (githubResult.status === "fulfilled") {
     renderProfile(githubResult.value.profile, githubResult.value.repos);
     return;
   }
 
-  renderError(githubResult.reason);
+  renderGithubError(githubResult.reason);
 }
 
 async function loadGithubData() {
@@ -53,6 +81,27 @@ async function loadGithubData() {
   ]);
 
   return { profile, repos };
+}
+
+async function loadGuestbookEntries() {
+  return fetchSupabaseJson(
+    `${SUPABASE_URL}/rest/v1/${GUESTBOOK_TABLE}?select=id,name,message,created_at&order=created_at.desc&limit=${GUESTBOOK_LIMIT}`
+  );
+}
+
+async function createGuestbookEntry(entry) {
+  const created = await fetchSupabaseJson(
+    `${SUPABASE_URL}/rest/v1/${GUESTBOOK_TABLE}`,
+    {
+      method: "POST",
+      headers: {
+        Prefer: "return=representation",
+      },
+      body: [entry],
+    }
+  );
+
+  return Array.isArray(created) ? created[0] : created;
 }
 
 async function fetchJson(url) {
@@ -67,52 +116,84 @@ async function fetchJson(url) {
   return response.json();
 }
 
-async function checkSupabaseConnection() {
-  const response = await fetch(`${SUPABASE_URL}/auth/v1/settings`, {
-    headers: {
-      apikey: SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-    },
+async function fetchSupabaseJson(url, options = {}) {
+  const headers = {
+    apikey: SUPABASE_ANON_KEY,
+    Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+    ...options.headers,
+  };
+
+  if (options.body) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  const response = await fetch(url, {
+    method: options.method || "GET",
+    headers,
+    body: options.body ? JSON.stringify(options.body) : undefined,
     cache: "no-store",
   });
 
+  const rawText = await response.text();
+  const payload = rawText ? parseJsonSafely(rawText) : null;
+
   if (!response.ok) {
-    const error = new Error(`Supabase request failed with ${response.status}`);
+    const error = new Error(getSupabaseErrorMessage(response.status, payload));
     error.status = response.status;
+    error.payload = payload;
     throw error;
   }
 
-  const settings = await response.json();
-
-  return {
-    emailAuthEnabled: Boolean(settings.external?.email),
-    signupsOpen: !settings.disable_signup,
-  };
+  return payload;
 }
 
-function renderSupabaseStatus(result) {
-  if (!elements.supabaseStatus) {
+async function handleGuestbookSubmit(event) {
+  event.preventDefault();
+
+  if (!guestbookWritable) {
+    setGuestbookFormStatus(
+      "error",
+      "방명록 작성이 아직 준비되지 않았습니다. 아래 안내를 먼저 확인해 주세요."
+    );
     return;
   }
 
-  if (result.status === "fulfilled") {
-    const details = [`${SUPABASE_PROJECT_REF} connected`];
+  const name = elements.guestbookName?.value.trim() || "";
+  const message = elements.guestbookMessage?.value.trim() || "";
 
-    if (result.value.emailAuthEnabled) {
-      details.push("email auth on");
-    }
-
-    if (result.value.signupsOpen) {
-      details.push("signup open");
-    }
-
-    elements.supabaseStatus.textContent = details.join(" · ");
-    elements.supabaseStatus.dataset.state = "connected";
+  if (!name || !message) {
+    setGuestbookFormStatus("error", "이름과 메시지를 모두 입력해 주세요.");
     return;
   }
 
-  elements.supabaseStatus.textContent = "connection failed";
-  elements.supabaseStatus.dataset.state = "error";
+  guestbookSubmitting = true;
+  syncGuestbookFormState();
+  setGuestbookFormStatus("submitting", "방명록을 저장하는 중입니다.");
+
+  try {
+    const entry = await createGuestbookEntry({ name, message });
+    guestbookEntries = [entry, ...guestbookEntries].slice(0, GUESTBOOK_LIMIT);
+    renderGuestbookEntries(guestbookEntries);
+    renderGuestbookReady(guestbookEntries.length);
+    elements.guestbookForm?.reset();
+    setGuestbookFormStatus("success", "방명록이 저장되었습니다.");
+  } catch (error) {
+    const copy = getGuestbookErrorCopy(error);
+    if (copy.lockForm) {
+      guestbookWritable = false;
+      syncGuestbookFormState();
+      setSupabaseStatus("error", copy.statusText);
+    }
+
+    if (elements.guestbookNote) {
+      elements.guestbookNote.textContent = copy.note;
+    }
+
+    setGuestbookFormStatus("error", copy.formMessage);
+  } finally {
+    guestbookSubmitting = false;
+    syncGuestbookFormState();
+  }
 }
 
 function renderProfile(profile, repos) {
@@ -160,38 +241,6 @@ function renderProfile(profile, repos) {
   renderFacts(profile);
   renderRepos(featuredRepos);
   renderTimeline(recentRepos);
-}
-
-function buildLead(profile, repoCount) {
-  const parts = [
-    `${DISPLAY_NAME}의 GitHub 기반 스케치북 페이지입니다.`,
-    `${formatNumber(repoCount)}개의 공개 저장소를 따뜻한 손그림 스타일 레이아웃에 담았습니다.`,
-  ];
-
-  if (profile.location) {
-    parts.push(`활동 지역은 ${profile.location}입니다.`);
-  }
-
-  return parts.join(" ");
-}
-
-function buildBio(profile, repoCount, totalStars, topLanguage) {
-  const parts = [
-    `${DISPLAY_NAME}의 공개 코드와 최근 작업 흐름을 종이 질감의 한 화면에 정리한 개인 페이지입니다.`,
-    `현재 공개 저장소는 ${formatNumber(repoCount)}개이고, 누적 스타 수는 ${formatNumber(
-      totalStars
-    )}개입니다.`,
-  ];
-
-  if (topLanguage) {
-    parts.push(`가장 많이 보이는 언어는 ${topLanguage}입니다.`);
-  }
-
-  if (profile.location) {
-    parts.push(`활동 지역은 ${profile.location}으로 표시됩니다.`);
-  }
-
-  return parts.join(" ");
 }
 
 function renderFacts(profile) {
@@ -283,7 +332,66 @@ function renderTimeline(repos) {
   elements.timeline.replaceChildren(fragment);
 }
 
-function renderError(error) {
+function renderGuestbookEntries(entries) {
+  if (!elements.guestbookList || !guestbookEntryTemplate) {
+    return;
+  }
+
+  if (entries.length === 0) {
+    elements.guestbookList.innerHTML =
+      '<div class="empty-state">첫 번째 방명록을 남겨 보세요.</div>';
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+
+  entries.forEach((entry) => {
+    const node = guestbookEntryTemplate.content.firstElementChild.cloneNode(true);
+    node.querySelector(".guestbook-name").textContent = entry.name;
+    node.querySelector(".guestbook-date").textContent = formatDateTime(
+      entry.created_at
+    );
+    node.querySelector(".guestbook-message").textContent = entry.message;
+    fragment.append(node);
+  });
+
+  elements.guestbookList.replaceChildren(fragment);
+}
+
+function renderGuestbookReady(entryCount) {
+  setSupabaseStatus(
+    "connected",
+    entryCount > 0
+      ? `연결됨 · ${formatNumber(entryCount)}개 로드`
+      : "연결됨 · 첫 글 대기"
+  );
+
+  if (elements.guestbookNote) {
+    elements.guestbookNote.textContent =
+      entryCount > 0
+        ? `최근 방명록 ${formatNumber(entryCount)}개를 표시하고 있습니다.`
+        : "첫 번째 방명록을 남겨 보세요.";
+  }
+}
+
+function renderGuestbookError(error) {
+  const copy = getGuestbookErrorCopy(error);
+  guestbookWritable = false;
+  syncGuestbookFormState();
+  setSupabaseStatus("error", copy.statusText);
+
+  if (elements.guestbookNote) {
+    elements.guestbookNote.textContent = copy.note;
+  }
+
+  if (elements.guestbookList) {
+    elements.guestbookList.innerHTML = `<div class="error-state">${copy.listMessage}</div>`;
+  }
+
+  setGuestbookFormStatus("error", copy.formMessage);
+}
+
+function renderGithubError(error) {
   const message =
     error.status === 403
       ? "GitHub API 요청 한도에 도달했습니다. 잠시 후 다시 새로고침해 주세요."
@@ -296,6 +404,38 @@ function renderError(error) {
   elements.repoGrid.innerHTML = `<div class="error-state">${message}</div>`;
   elements.timeline.innerHTML = `<div class="error-state">${message}</div>`;
   elements.factsList.innerHTML = `<div class="error-state">${message}</div>`;
+}
+
+function buildLead(profile, repoCount) {
+  const parts = [
+    `${DISPLAY_NAME}의 GitHub 기반 스케치북 페이지입니다.`,
+    `${formatNumber(repoCount)}개의 공개 저장소를 따뜻한 손그림 스타일 레이아웃에 담았습니다.`,
+  ];
+
+  if (profile.location) {
+    parts.push(`활동 지역은 ${profile.location}입니다.`);
+  }
+
+  return parts.join(" ");
+}
+
+function buildBio(profile, repoCount, totalStars, topLanguage) {
+  const parts = [
+    `${DISPLAY_NAME}의 공개 코드와 최근 작업 흐름을 종이 질감의 한 화면에 정리한 개인 페이지입니다.`,
+    `현재 공개 저장소는 ${formatNumber(repoCount)}개이고, 누적 스타 수는 ${formatNumber(
+      totalStars
+    )}개입니다.`,
+  ];
+
+  if (topLanguage) {
+    parts.push(`가장 많이 보이는 언어는 ${topLanguage}입니다.`);
+  }
+
+  if (profile.location) {
+    parts.push(`활동 지역은 ${profile.location}으로 표시됩니다.`);
+  }
+
+  return parts.join(" ");
 }
 
 function buildLanguageMap(repos) {
@@ -335,11 +475,144 @@ function buildTimelineCopy(repo) {
   return "최근에 푸시된 공개 저장소입니다.";
 }
 
+function getGuestbookErrorCopy(error) {
+  const payload = error?.payload || {};
+  const message = [error?.message, payload?.message, payload?.hint]
+    .filter(Boolean)
+    .join(" ");
+
+  if (
+    payload?.code === "PGRST205" ||
+    message.includes("Could not find the table")
+  ) {
+    return {
+      statusText: "테이블 필요",
+      note: "Supabase SQL Editor에서 supabase/guestbook.sql을 먼저 실행해 주세요.",
+      listMessage:
+        "방명록 테이블이 아직 없습니다. supabase/guestbook.sql을 실행한 뒤 새로고침하면 바로 사용할 수 있습니다.",
+      formMessage:
+        "방명록 테이블이 아직 준비되지 않았습니다. supabase/guestbook.sql을 먼저 적용해 주세요.",
+      lockForm: true,
+    };
+  }
+
+  if (message.toLowerCase().includes("row-level security")) {
+    return {
+      statusText: "정책 확인 필요",
+      note: "읽기 또는 쓰기 정책이 없어 방명록에 접근할 수 없습니다.",
+      listMessage:
+        "RLS policy가 없어서 방명록을 열 수 없습니다. supabase/guestbook.sql의 policy 구문을 적용해 주세요.",
+      formMessage:
+        "쓰기 권한이 막혀 있습니다. Supabase의 RLS policy 설정을 확인해 주세요.",
+      lockForm: true,
+    };
+  }
+
+  if (error?.status === 401 || error?.status === 403) {
+    return {
+      statusText: "권한 확인 필요",
+      note: "anon key 또는 정책 설정 때문에 방명록에 접근하지 못하고 있습니다.",
+      listMessage:
+        "현재 권한으로 방명록을 읽을 수 없습니다. anon key와 policy 설정을 확인해 주세요.",
+      formMessage:
+        "현재 권한으로는 글을 저장할 수 없습니다. anon key와 policy 설정을 확인해 주세요.",
+      lockForm: true,
+    };
+  }
+
+  if (error?.status >= 500) {
+    return {
+      statusText: "서버 응답 대기",
+      note: "Supabase가 일시적으로 응답하지 않았습니다. 잠시 후 다시 시도해 주세요.",
+      listMessage:
+        "Supabase 응답이 일시적으로 불안정합니다. 잠시 후 새로고침해 다시 확인해 주세요.",
+      formMessage:
+        "서버가 일시적으로 응답하지 않았습니다. 잠시 후 다시 시도해 주세요.",
+      lockForm: false,
+    };
+  }
+
+  return {
+    statusText: "연결 문제",
+    note: "방명록을 불러오지 못했습니다. 네트워크나 Supabase 설정을 다시 확인해 주세요.",
+    listMessage:
+      "방명록 데이터를 불러오지 못했습니다. 네트워크 상태 또는 Supabase 설정을 확인해 주세요.",
+    formMessage:
+      "방명록 저장에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+    lockForm: false,
+  };
+}
+
+function getSupabaseErrorMessage(status, payload) {
+  if (payload && typeof payload === "object" && payload.message) {
+    return payload.message;
+  }
+
+  return `Supabase request failed with ${status}`;
+}
+
+function parseJsonSafely(value) {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+}
+
+function setSupabaseStatus(state, message) {
+  if (!elements.supabaseStatus) {
+    return;
+  }
+
+  elements.supabaseStatus.dataset.state = state;
+  elements.supabaseStatus.textContent = message;
+}
+
+function setGuestbookFormStatus(state, message) {
+  if (!elements.guestbookFormStatus) {
+    return;
+  }
+
+  elements.guestbookFormStatus.dataset.state = state;
+  elements.guestbookFormStatus.textContent = message;
+}
+
+function syncGuestbookFormState() {
+  const disabled = guestbookSubmitting || !guestbookWritable;
+
+  [elements.guestbookName, elements.guestbookMessage, elements.guestbookSubmit]
+    .filter(Boolean)
+    .forEach((node) => {
+      node.disabled = disabled;
+    });
+
+  if (!elements.guestbookSubmit) {
+    return;
+  }
+
+  if (guestbookSubmitting) {
+    elements.guestbookSubmit.textContent = "저장 중...";
+    return;
+  }
+
+  elements.guestbookSubmit.textContent = guestbookWritable ? "남기기" : "준비 필요";
+}
+
 function formatDate(value) {
   return new Intl.DateTimeFormat("ko-KR", {
     year: "numeric",
     month: "short",
     day: "numeric",
+  }).format(new Date(value));
+}
+
+function formatDateTime(value) {
+  return new Intl.DateTimeFormat("ko-KR", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
   }).format(new Date(value));
 }
 
