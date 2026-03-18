@@ -150,6 +150,7 @@ a {
 
 .identity-panel,
 .contact-panel,
+.work-panel,
 .side-nav-panel {
   padding: 24px;
 }
@@ -598,6 +599,7 @@ a {
 .identity-panel,
 .side-nav-panel,
 .contact-panel,
+.work-panel,
 .hero-panel,
 .focus-panel,
 .project-panel,
@@ -612,6 +614,10 @@ a {
 
 .contact-panel {
   animation-delay: 120ms;
+}
+
+.work-panel {
+  animation-delay: 160ms;
 }
 
 .hero-panel {
@@ -698,6 +704,7 @@ a {
 
   .identity-panel,
   .contact-panel,
+  .work-panel,
   .side-nav-panel,
   .hero-panel,
   .focus-panel,

@@ -1,0 +1,984 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#97e7d3" />
+    <title>냉장고 재고 관리 앱</title>
+    <style>
+      :root {
+        --mint: #97e7d3;
+        --mint-deep: #54c9b3;
+        --blue: #4f95ee;
+        --blue-soft: #a8cef7;
+        --orange: #f7b863;
+        --red: #f26452;
+        --ink: #111827;
+        --muted: #6b7280;
+        --line: rgba(17, 24, 39, 0.08);
+        --card-shadow: 0 18px 32px rgba(30, 41, 59, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        font-family: "SF Pro Display", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 12% 22%, rgba(255, 255, 255, 0.84), transparent 20%),
+          radial-gradient(circle at 84% 28%, rgba(255, 236, 205, 0.8), transparent 16%),
+          radial-gradient(circle at 80% 80%, rgba(255, 224, 170, 0.55), transparent 14%),
+          linear-gradient(135deg, #f1ede5 0%, #efe2d3 42%, #f8f4ed 100%);
+      }
+
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        border-radius: 999px;
+        filter: blur(12px);
+        pointer-events: none;
+      }
+
+      body::before {
+        width: 240px;
+        height: 240px;
+        left: 8vw;
+        bottom: 8vh;
+        background: rgba(171, 234, 198, 0.4);
+      }
+
+      body::after {
+        width: 180px;
+        height: 180px;
+        right: 8vw;
+        bottom: 12vh;
+        background: rgba(255, 212, 150, 0.45);
+      }
+
+      .phone {
+        position: relative;
+        width: min(100%, 430px);
+        height: min(92vh, 860px);
+        padding: 10px;
+        border-radius: 44px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.04)),
+          linear-gradient(180deg, #12161d, #07090d);
+        box-shadow: 0 26px 60px rgba(0, 0, 0, 0.28);
+      }
+
+      .phone::before {
+        content: "";
+        position: absolute;
+        top: 16px;
+        left: 50%;
+        width: 124px;
+        height: 30px;
+        transform: translateX(-50%);
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.86);
+        z-index: 5;
+      }
+
+      .screen {
+        position: relative;
+        height: 100%;
+        overflow: hidden;
+        border-radius: 36px;
+        background: linear-gradient(180deg, #a8efde 0%, #8be2cb 18%, #f5f8fc 18.5%, #f5f8fc 100%);
+      }
+
+      .status-bar,
+      .hero {
+        position: relative;
+        z-index: 2;
+      }
+
+      .status-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 24px 8px;
+        font-weight: 800;
+      }
+
+      .status-icons {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .signal {
+        display: flex;
+        align-items: flex-end;
+        gap: 2px;
+        height: 13px;
+      }
+
+      .signal span {
+        width: 3px;
+        border-radius: 999px;
+        background: #15202f;
+      }
+
+      .signal span:nth-child(1) { height: 5px; opacity: .4; }
+      .signal span:nth-child(2) { height: 7px; opacity: .55; }
+      .signal span:nth-child(3) { height: 10px; opacity: .7; }
+      .signal span:nth-child(4) { height: 13px; }
+
+      .wifi,
+      .battery {
+        position: relative;
+      }
+
+      .wifi {
+        width: 16px;
+        height: 12px;
+        border: 2px solid transparent;
+        border-top-color: #15202f;
+        border-radius: 50%;
+      }
+
+      .wifi::before,
+      .wifi::after,
+      .battery::before,
+      .battery::after {
+        content: "";
+        position: absolute;
+      }
+
+      .wifi::before {
+        top: -4px;
+        left: 50%;
+        width: 16px;
+        height: 10px;
+        transform: translateX(-50%);
+        border: 2px solid transparent;
+        border-top-color: #15202f;
+        border-radius: 50%;
+      }
+
+      .wifi::after {
+        left: 50%;
+        bottom: -2px;
+        width: 4px;
+        height: 4px;
+        transform: translateX(-50%);
+        border-radius: 50%;
+        background: #15202f;
+      }
+
+      .battery {
+        width: 24px;
+        height: 12px;
+        border: 2px solid #15202f;
+        border-radius: 4px;
+      }
+
+      .battery::before {
+        top: 2px;
+        left: 2px;
+        width: 14px;
+        height: 4px;
+        border-radius: 2px;
+        background: #15202f;
+      }
+
+      .battery::after {
+        top: 2px;
+        right: -4px;
+        width: 2px;
+        height: 6px;
+        border-radius: 0 2px 2px 0;
+        background: #15202f;
+      }
+
+      .hero {
+        padding: 4px 20px 22px;
+      }
+
+      .hero-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .icon-btn {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: 0;
+        border-radius: 999px;
+        display: grid;
+        place-items: center;
+        background: rgba(255, 255, 255, 0.42);
+        color: #20354a;
+        backdrop-filter: blur(14px);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 16px 10px;
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.28);
+        backdrop-filter: blur(14px);
+      }
+
+      .brand-icon {
+        font-size: 1.8rem;
+        line-height: 1;
+      }
+
+      .brand-title {
+        font-size: clamp(1.7rem, 3.7vw, 1.95rem);
+        font-weight: 900;
+        letter-spacing: -0.06em;
+        line-height: 1;
+        color: #ffc93a;
+        text-shadow: 0 3px 0 #24324d, 2px 0 0 #24324d, -2px 0 0 #24324d, 0 -2px 0 #24324d;
+      }
+
+      .sheet {
+        position: relative;
+        z-index: 2;
+        height: calc(100% - 126px);
+        margin-top: -4px;
+        padding: 26px 18px 118px;
+        border-top-left-radius: 32px;
+        border-top-right-radius: 32px;
+        overflow-y: auto;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 250, 255, 0.98));
+      }
+
+      .sheet::-webkit-scrollbar {
+        width: 0;
+      }
+
+      h1,
+      h2,
+      p {
+        margin: 0;
+      }
+
+      .headline {
+        font-size: clamp(1.9rem, 4vw, 2.15rem);
+        line-height: 1.18;
+        letter-spacing: -0.06em;
+      }
+
+      .lead {
+        margin-top: 18px;
+        font-size: 1.03rem;
+        color: var(--ink);
+        font-weight: 900;
+      }
+
+      .lead span,
+      .section-note,
+      .stock-date,
+      .stock-meta,
+      .recipe-meta {
+        color: var(--muted);
+      }
+
+      .stock-grid,
+      .recipe-grid {
+        display: grid;
+        gap: 12px;
+      }
+
+      .stock-grid {
+        margin-top: 16px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .recipe-grid {
+        margin-top: 14px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .card {
+        background: linear-gradient(180deg, #fff, #fbfdff);
+        border: 1px solid var(--line);
+        box-shadow: var(--card-shadow);
+      }
+
+      .stock-card {
+        padding: 12px 10px 10px;
+        border-radius: 22px;
+        text-align: center;
+        animation: rise .55s ease both;
+      }
+
+      .stock-card:nth-child(2) { animation-delay: .06s; }
+      .stock-card:nth-child(3) { animation-delay: .12s; }
+
+      .stock-visual {
+        display: grid;
+        place-items: center;
+        height: 96px;
+        padding: 10px;
+        border-radius: 18px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.66);
+      }
+
+      .stock-visual svg {
+        width: 74px;
+        height: 74px;
+        display: block;
+      }
+
+      .stock-name {
+        margin-top: 10px;
+        font-size: 1.15rem;
+        font-weight: 900;
+        letter-spacing: -0.05em;
+      }
+
+      .stock-meta {
+        margin-top: 2px;
+        font-size: .97rem;
+        font-weight: 700;
+      }
+
+      .stock-date {
+        margin-top: 10px;
+        font-size: .92rem;
+        font-weight: 700;
+      }
+
+      .stock-badge {
+        margin-top: 10px;
+        height: 31px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        color: #fff;
+        font-size: .86rem;
+        font-weight: 900;
+        background: linear-gradient(180deg, #ff7b5f, var(--red));
+      }
+
+      .badge-dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: rgba(255, 255, 255, 0.2);
+        font-size: .74rem;
+      }
+
+      .section-row {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        margin-top: 28px;
+      }
+
+      .section-row h2 {
+        font-size: 1.55rem;
+        letter-spacing: -0.05em;
+      }
+
+      .section-note {
+        font-size: .95rem;
+        font-weight: 700;
+      }
+
+      .recipe-card {
+        padding: 10px;
+        border-radius: 22px;
+        animation: rise .6s ease both;
+      }
+
+      .recipe-card:nth-child(2) { animation-delay: .08s; }
+
+      .recipe-art {
+        position: relative;
+        height: 146px;
+        overflow: hidden;
+        border-radius: 18px;
+        padding: 12px;
+      }
+
+      .recipe-art::before,
+      .recipe-art::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+      }
+
+      .recipe-art::before {
+        width: 150px;
+        height: 150px;
+        left: 50%;
+        top: 56%;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 255, 255, 0.8);
+      }
+
+      .recipe-art::after {
+        inset: auto 12px 12px auto;
+        width: 64px;
+        height: 64px;
+        background: rgba(255, 255, 255, 0.18);
+        filter: blur(10px);
+      }
+
+      .art-rice { background: linear-gradient(135deg, #f6d7b0, #fce8d4); }
+      .art-roll { background: linear-gradient(135deg, #e6d2b8, #f3e4d6); }
+
+      .recipe-plate {
+        position: absolute;
+        left: 50%;
+        top: 52%;
+        transform: translate(-50%, -50%);
+        font-size: 4.4rem;
+        z-index: 1;
+      }
+
+      .recipe-accent {
+        position: absolute;
+        z-index: 2;
+        font-size: 1.5rem;
+      }
+
+      .recipe-accent.a { top: 18px; left: 16px; }
+      .recipe-accent.b { right: 14px; top: 20px; }
+      .recipe-accent.c { left: 22px; bottom: 18px; }
+
+      .time-pill {
+        position: absolute;
+        right: 10px;
+        bottom: 10px;
+        z-index: 3;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(64, 46, 24, 0.56);
+        color: #fff;
+        font-size: .8rem;
+        font-weight: 800;
+      }
+
+      .recipe-title {
+        margin-top: 10px;
+        font-size: 1.12rem;
+        font-weight: 900;
+        letter-spacing: -0.05em;
+      }
+
+      .recipe-meta {
+        margin-top: 4px;
+        font-size: .95rem;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+      }
+
+      .fab {
+        position: absolute;
+        right: 22px;
+        bottom: 86px;
+        z-index: 4;
+        width: 68px;
+        height: 68px;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        color: #fff;
+        font-size: 2.6rem;
+        background: linear-gradient(180deg, #63afff, #347fe6);
+        box-shadow: 0 18px 34px rgba(52, 127, 230, 0.42);
+      }
+
+      .tabbar {
+        position: absolute;
+        inset: auto 0 0;
+        z-index: 3;
+        height: 92px;
+        padding: 8px 16px 22px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 -12px 28px rgba(27, 39, 64, 0.1);
+        backdrop-filter: blur(16px);
+      }
+
+      .tab {
+        position: relative;
+        padding: 0;
+        border: 0;
+        background: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        color: #8b95a3;
+        font-size: .84rem;
+        font-weight: 900;
+      }
+
+      .tab svg {
+        width: 24px;
+        height: 24px;
+      }
+
+      .tab.active {
+        color: var(--blue);
+      }
+
+      .tab.active::before {
+        content: "";
+        position: absolute;
+        top: -8px;
+        width: 36px;
+        height: 4px;
+        border-radius: 999px;
+        background: var(--blue);
+      }
+
+      .home-indicator {
+        position: absolute;
+        left: 50%;
+        bottom: 7px;
+        width: 138px;
+        height: 5px;
+        border-radius: 999px;
+        transform: translateX(-50%);
+        background: rgba(16, 24, 40, 0.9);
+      }
+
+      .quick-sheet {
+        position: absolute;
+        inset: 0;
+        z-index: 6;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .18s ease;
+      }
+
+      .quick-sheet.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .quick-sheet .backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.26);
+        backdrop-filter: blur(6px);
+      }
+
+      .sheet-panel {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 14px 18px 28px;
+        border-top-left-radius: 28px;
+        border-top-right-radius: 28px;
+        background: rgba(255, 255, 255, 0.98);
+        transform: translateY(100%);
+        transition: transform .24s ease;
+      }
+
+      .quick-sheet.open .sheet-panel {
+        transform: translateY(0);
+      }
+
+      .sheet-handle {
+        width: 48px;
+        height: 5px;
+        margin: 0 auto 14px;
+        border-radius: 999px;
+        background: rgba(148, 163, 184, 0.66);
+      }
+
+      .sheet-title {
+        font-size: 1.4rem;
+        letter-spacing: -0.04em;
+      }
+
+      .sheet-copy {
+        margin-top: 6px;
+        font-size: .95rem;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .actions {
+        margin-top: 16px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .action {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 18px;
+        border-radius: 20px;
+        background: linear-gradient(180deg, #f8fbff, #eef5ff);
+        border: 1px solid rgba(79, 149, 238, 0.12);
+        box-shadow: 0 12px 22px rgba(30, 41, 59, 0.08);
+      }
+
+      .action-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        font-size: 1.3rem;
+        background: linear-gradient(180deg, #e6f2ff, #d9eaff);
+      }
+
+      .action strong {
+        display: block;
+        font-size: 1rem;
+      }
+
+      .action span {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: .9rem;
+        font-weight: 700;
+      }
+
+      @keyframes rise {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @media (max-width: 520px) {
+        body {
+          background: linear-gradient(180deg, #c2f5e7 0%, #eef4fb 26%, #eef4fb 100%);
+        }
+
+        body::before,
+        body::after {
+          display: none;
+        }
+
+        .phone {
+          width: 100%;
+          height: 100vh;
+          padding: 0;
+          border-radius: 0;
+          background: none;
+          box-shadow: none;
+        }
+
+        .phone::before {
+          top: 12px;
+        }
+
+        .screen {
+          border-radius: 0;
+        }
+      }
+
+      @media (max-width: 390px) {
+        .brand-title { font-size: 1.56rem; }
+        .headline { font-size: 1.72rem; }
+        .stock-grid { gap: 10px; }
+        .stock-card { padding-inline: 8px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="phone">
+      <div class="screen">
+        <div class="status-bar">
+          <div>9:41</div>
+          <div class="status-icons">
+            <div class="signal" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+            <div class="wifi" aria-hidden="true"></div>
+            <div class="battery" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <header class="hero">
+          <div class="hero-row">
+            <button class="icon-btn" aria-label="프로필">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="12" cy="8.2" r="4.2" fill="currentColor"></circle>
+                <path d="M4.5 19c0-3.2 3.2-5.8 7.5-5.8s7.5 2.6 7.5 5.8v1H4.5v-1Z" fill="currentColor"></path>
+              </svg>
+            </button>
+            <div class="brand">
+              <span class="brand-icon" aria-hidden="true">🧊</span>
+              <div class="brand-title">냉장재고</div>
+            </div>
+            <button class="icon-btn" aria-label="검색">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="2.4"></circle>
+                <path d="M16 16l4 4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path>
+              </svg>
+            </button>
+          </div>
+        </header>
+
+        <main class="sheet">
+          <h1 class="headline">냉장고 재고를 한눈에 관리하세요</h1>
+          <p class="lead">유통기한 임박 품목 <span>(먼저 확인하세요)</span></p>
+
+          <section class="stock-grid" id="stockGrid" aria-label="유통기한 임박 재고"></section>
+
+          <div class="section-row">
+            <h2>재고 기반 추천 레시피</h2>
+            <span class="section-note">(남은 재료 활용)</span>
+          </div>
+
+          <section class="recipe-grid" id="recipeGrid" aria-label="추천 레시피"></section>
+        </main>
+
+        <button class="fab" id="fab" type="button" aria-label="재고 추가">+</button>
+
+        <nav class="tabbar" aria-label="하단 메뉴">
+          <button class="tab active" data-tab="home" aria-label="홈">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 10.6 12 4l8 6.6v8a1.5 1.5 0 0 1-1.5 1.5H5.5A1.5 1.5 0 0 1 4 18.6v-8Z" fill="currentColor"></path></svg>
+            <span>홈</span>
+          </button>
+          <button class="tab" data-tab="stock" aria-label="재고">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 8.2h12v8.4a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8.2Z" stroke="currentColor" stroke-width="2"></path><path d="M8 8.2V6.6A1.6 1.6 0 0 1 9.6 5h4.8A1.6 1.6 0 0 1 16 6.6v1.6" stroke="currentColor" stroke-width="2"></path></svg>
+            <span>재고</span>
+          </button>
+          <button class="tab" data-tab="cook" aria-label="요리">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 4v7.4a2.8 2.8 0 0 1-.82 2L4 15.58V20h3v-3l2.18-2.18a2.8 2.8 0 0 1 2-.82H20V4H7Z" stroke="currentColor" stroke-width="2"></path><path d="M11 8h5M11 11h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+            <span>요리</span>
+          </button>
+          <button class="tab" data-tab="settings" aria-label="설정">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m12 4 1.7 1.1 2-.2.9 1.8 1.9.7.1 2 1.4 1.4-1 1.8 1 1.8-1.4 1.4-.1 2-1.9.7-.9 1.8-2-.2L12 20l-1.7 1.1-2-.2-.9-1.8-1.9-.7-.1-2L4 14.9l1-1.8-1-1.8 1.4-1.4.1-2 1.9-.7.9-1.8 2 .2L12 4Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.7"></circle></svg>
+            <span>설정</span>
+          </button>
+        </nav>
+
+        <div class="home-indicator" aria-hidden="true"></div>
+
+        <section class="quick-sheet" id="quickSheet" aria-hidden="true">
+          <div class="backdrop" id="sheetBackdrop"></div>
+          <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <h2 class="sheet-title" id="sheetTitle">새 재고를 등록할까요?</h2>
+            <p class="sheet-copy">바코드, OCR, 직접 입력으로 냉장고 재고를 빠르게 추가할 수 있게 구성해뒀습니다.</p>
+            <div class="actions">
+              <div class="action"><div class="action-icon">📷</div><div><strong>바코드 스캔</strong><span>마트에서 바로 넣는 빠른 등록</span></div></div>
+              <div class="action"><div class="action-icon">✍️</div><div><strong>직접 입력</strong><span>식품명, 수량, 유통기한 수동 등록</span></div></div>
+              <div class="action"><div class="action-icon">🧾</div><div><strong>영수증 OCR</strong><span>여러 품목을 한 번에 자동 인식</span></div></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      const stocks = [
+        { name: "우유", meta: "1000ml", date: "2026.03.19", badge: "1일 남음", type: "milk", bg: "linear-gradient(180deg,#99e6cf,#c8f5e8)" },
+        { name: "계란", meta: "6개", date: "2026.03.20", badge: "2일 남음", type: "eggs", bg: "linear-gradient(180deg,#9dc7f5,#dceafb)" },
+        { name: "돼지고기", meta: "300g", date: "2026.03.21", badge: "3일 남음", type: "pork", bg: "linear-gradient(180deg,#ffc36f,#ffe3b6)" },
+        { name: "양파", meta: "2개", date: "2026.03.21", badge: "3일 남음", type: "onion", bg: "linear-gradient(180deg,#f3d2ab,#f9ebcf)" },
+        { name: "당근", meta: "3개", date: "2026.03.22", badge: "4일 남음", type: "carrot", bg: "linear-gradient(180deg,#ffd497,#ffe8c8)" },
+        { name: "김치", meta: "500g", date: "2026.03.22", badge: "4일 남음", type: "kimchi", bg: "linear-gradient(180deg,#ffb387,#ffd7bf)" },
+        { name: "두부", meta: "1모", date: "2026.03.23", badge: "5일 남음", type: "tofu", bg: "linear-gradient(180deg,#e8eef5,#f8fbff)" },
+        { name: "치즈", meta: "8장", date: "2026.03.23", badge: "5일 남음", type: "cheese", bg: "linear-gradient(180deg,#ffe58e,#fff0bf)" },
+        { name: "대파", meta: "1단", date: "2026.03.24", badge: "6일 남음", type: "green-onion", bg: "linear-gradient(180deg,#b7edb9,#def7df)" }
+      ];
+
+      const recipes = [
+        { title: "김치볶음밥", meta: "김치, 계란, 돼지고기", time: "13:30", art: "art-rice", plate: "🍚", a: "🌶️", b: "🥄", c: "🧅" },
+        { title: "계란말이", meta: "계란, 쪽파, 치즈", time: "09:00", art: "art-roll", plate: "🍳", a: "🧈", b: "🥢", c: "🧂" }
+      ];
+
+      const stockGrid = document.getElementById("stockGrid");
+      const recipeGrid = document.getElementById("recipeGrid");
+      const tabs = document.querySelectorAll(".tab");
+      const fab = document.getElementById("fab");
+      const quickSheet = document.getElementById("quickSheet");
+      const sheetBackdrop = document.getElementById("sheetBackdrop");
+
+      function renderStockArt(type) {
+        if (type === "milk") {
+          return `
+            <svg viewBox="0 0 88 88" fill="none" aria-hidden="true">
+              <path d="M28 14h20l11 11v38a7 7 0 0 1-7 7H30a7 7 0 0 1-7-7V25l7-11Z" fill="#FDFEFF" stroke="#35506E" stroke-width="3"></path>
+              <path d="M28 14v13h31V25L49 14H28Z" fill="#D4E4F8" stroke="#35506E" stroke-width="3" stroke-linejoin="round"></path>
+              <path d="M22 40h38" stroke="#8BB6E8" stroke-width="5" stroke-linecap="round"></path>
+              <path d="M28 49h24" stroke="#8BB6E8" stroke-width="4" stroke-linecap="round" opacity=".9"></path>
+              <path d="M36 33h8" stroke="#35506E" stroke-width="3" stroke-linecap="round"></path>
+            </svg>
+          `;
+        }
+
+        if (type === "eggs") {
+          return `
+            <svg viewBox="0 0 88 88" fill="none" aria-hidden="true">
+              <rect x="16" y="44" width="56" height="18" rx="6" fill="#DCC3A0" stroke="#7A5F44" stroke-width="3"></rect>
+              <path d="M16 53h56" stroke="#7A5F44" stroke-width="3" stroke-linecap="round"></path>
+              <ellipse cx="27" cy="37" rx="8" ry="10.5" fill="#FFDDAE" stroke="#7A5F44" stroke-width="3"></ellipse>
+              <ellipse cx="41" cy="34" rx="8" ry="10.5" fill="#F8D19A" stroke="#7A5F44" stroke-width="3"></ellipse>
+              <ellipse cx="55" cy="37" rx="8" ry="10.5" fill="#FFE5BE" stroke="#7A5F44" stroke-width="3"></ellipse>
+              <ellipse cx="64" cy="39" rx="6.5" ry="9" fill="#FFD7A1" stroke="#7A5F44" stroke-width="3"></ellipse>
+            </svg>
+          `;
+        }
+
+        if (type === "pork") {
+          return `
+            <svg viewBox="0 0 88 88" fill="none" aria-hidden="true">
+              <path
+                d="M24 56c-6-7-6.6-18 .8-24.8 7.5-6.9 17.4-7.3 24.8-3.7 3.7 1.8 6.8 4.7 10.5 6 6.8 2.5 11.3 6.7 11.3 14.4 0 10.1-8.3 19.8-24 19.8-10.2 0-18-3.2-23.4-11.7Z"
+                fill="#E67269"
+                stroke="#7D302E"
+                stroke-width="3"
+              ></path>
+              <path d="M35 54c0-7.6 5.8-13.8 13.1-13.8 4.7 0 9.1 2.5 11.4 6.7" stroke="#FDE5DA" stroke-width="7" stroke-linecap="round"></path>
+              <path d="M59.5 35.8c2.5 2.2 4.4 5.5 4.4 8.9 0 6.6-5 11.7-13.5 11.7" stroke="#F7C8B9" stroke-width="5" stroke-linecap="round"></path>
+              <circle cx="62.8" cy="33.2" r="3.7" fill="#F8B28C" stroke="#7D302E" stroke-width="3"></circle>
+            </svg>
+          `;
+        }
+
+        if (type === "onion") {
+          return `
+            <svg viewBox="0 0 88 88" fill="none" aria-hidden="true">
+              <path d="M44 19c4.3 5 9.2 8.8 9.2 18.4 0 10.1-4.4 24.7-9.2 24.7S34.8 47.5 34.8 37.4C34.8 27.8 39.7 24 44 19Z" fill="#C58A54" stroke="#7D5634" stroke-width="3"></path>
+              <path d="M44 24c7.8 5.8 15 12.7 15 23.1 0 10.8-6.7 18.5-15 18.5S29 57.9 29 47.1C29 36.7 36.2 29.8 44 24Z" fill="#E6B983" stroke="#7D5634" stroke-width="3"></path>
+              <path d="M44 27v33" stroke="#F5DABB" stroke-width="3" stroke-linecap="round"></path>
+              <path d="M36.8 31.5c2.2 8 2.2 17.1 0 25.1M51.2 31.5c-2.2 8-2.2 17.1 0 25.1" stroke="#F5DABB" stroke-width="3" stroke-linecap="round"></path>
+              <path d="M44 18c-1.6-5 1-9.7 4.8-13" stroke="#6BAE57" stroke-width="3" stroke-linecap="round"></path>
+              <path d="M44 18c1.1-4-1-7.7-4.3-10.4" stroke="#8BC96E" stroke-width="3" stroke-linecap="round"></path>
+            </svg>
+          `;
+        }
+
+        if (type === "carrot") {
+          return `
+            <svg viewBox="0 0 88 88" fill="none" aria-hidden="true">
+              <path d="M58 23c-2.4 7.2-4.8 14.4-8.7 21.1-4.1 7.1-9.2 13.4-16.2 19.8-2 1.8-5.2 1.6-6.9-.5-1.5-1.8-1.4-4.5.2-6.2 6.5-6.9 11.1-13.1 14.8-19.7 3.2-5.9 5.5-11.9 7.9-18.8L58 23Z" fill="#F48B2C" stroke="#9B4C1B" stroke-width="3" stroke-linejoin="round"></path>
+              <path d="M36 42l8.4 3.3M31.8 49l7.3 2.9M28 55l6.2 2.5" stroke="#FFBC6E" stroke-width="3" stroke-linecap="round"></path>
+              <path d="M54 23c.4-5.2 3.5-10.5 7.8-13.7M49 21c-2.6-4.3-7.1-7.5-11.8-8.9M58.5 26c4.4-2.7 9.9-3.4 14.5-2.1" stroke="#5FAF5F" stroke-width="4" stroke-linecap="round"></path>
+            </svg>
+          `;
+        }
+
+        if (type === "kimchi") {
+          return `
+            <svg viewBox="0 0 88 88" fill="none" aria-hidden="true">
+              <path d="M21 45c0-2.8 2.2-5 5-5h36c2.8 0 5 2.2 5 5 0 10.5-7.6 18.2-23 18.2S21 55.5 21 45Z" fill="#F7F2EA" stroke="#7A5E48" stroke-width="3"></path>
+              <path d="M28 39c2.1-9.2 7.6-15.2 16-15.2S57.9 29.8 60 39" stroke="#7A5E48" stroke-width="3" stroke-linecap="round"></path>
+              <path d="M29 42c3.6-5.5 8.9-8.8 15-8.8 6.8 0 12.1 3.1 16 9.2-2.6 7.3-8.5 12.2-16 12.2-7.1 0-12.4-3.4-15-12.6Z" fill="#DF5A42" stroke="#8F2E24" stroke-width="3"></path>
+              <path d="M34 42.5c2.2-3.1 5.4-5 9-5 3.5 0 6.8 1.7 9.6 5" stroke="#FFC281" stroke-width="3" stroke-linecap="round"></path>
+              <path d="M38.5 49c1.6 1.3 3.5 2 5.7 2 2.3 0 4.4-.8 6.1-2.3" stroke="#FFC281" stroke-width="3" stroke-linecap="round"></path>
+            </svg>
+          `;
+        }
+
+        if (type === "tofu") {
+          return `
+            <svg viewBox="0 0 88 88" fill="none" aria-hidden="true">
+              <rect x="20" y="29" width="48" height="32" rx="8" fill="#FFFDF8" stroke="#7B8794" stroke-width="3"></rect>
+              <rect x="28" y="23" width="32" height="9" rx="4.5" fill="#E9EEF4" stroke="#7B8794" stroke-width="3"></rect>
+              <path d="M28 43h32M28 51h24" stroke="#D8DEE6" stroke-width="3" stroke-linecap="round"></path>
+              <circle cx="57" cy="45" r="3" fill="#7CC66E"></circle>
+              <path d="M57 38c4.5-1.3 8.7-4.2 11.4-7.9" stroke="#7CC66E" stroke-width="3" stroke-linecap="round"></path>
+            </svg>
+          `;
+        }
+
+        if (type === "cheese") {
+          return `
+            <svg viewBox="0 0 88 88" fill="none" aria-hidden="true">
+              <path d="M24 56V33.5c0-1.8 1.3-3.3 3.1-3.5l29.2-4.7c2.2-.4 4.3 1 4.9 3.2L66 48.8c.7 2.6-.9 5.3-3.5 5.9l-33.8 8.5c-2.4.6-4.7-1.2-4.7-3.6Z" fill="#FFD960" stroke="#A86F13" stroke-width="3" stroke-linejoin="round"></path>
+              <circle cx="39" cy="41" r="4.2" fill="#FFC72B"></circle>
+              <circle cx="52.5" cy="47" r="3.3" fill="#FFC72B"></circle>
+              <circle cx="36" cy="55" r="2.8" fill="#FFC72B"></circle>
+              <path d="M24 56 66 48.8" stroke="#A86F13" stroke-width="3"></path>
+            </svg>
+          `;
+        }
+
+        if (type === "green-onion") {
+          return `
+            <svg viewBox="0 0 88 88" fill="none" aria-hidden="true">
+              <path d="M29 55c5.4-9.5 10.7-20.1 15.3-31.5M38 58c4.8-10 9.1-19.8 12.5-29.2M47 61c4.5-10.7 7.7-19.2 10.2-27.1" stroke="#49A85B" stroke-width="6" stroke-linecap="round"></path>
+              <path d="M25 58c2.2-3.4 5.9-5.4 9.5-5.4 3.6 0 6.6 1.9 8.4 5.4" stroke="#DCECCF" stroke-width="5" stroke-linecap="round"></path>
+              <path d="M34 62c1.9-3.2 4.7-5 7.9-5 3.3 0 6.1 1.8 8 5" stroke="#EEF7E7" stroke-width="5" stroke-linecap="round"></path>
+              <path d="M44 65c1.7-3 4-4.7 7-4.7 2.7 0 5.1 1.4 6.9 4.2" stroke="#F7FCF4" stroke-width="5" stroke-linecap="round"></path>
+              <path d="M26 59c8.7 5.2 18.3 6.8 29.5 4.9" stroke="#A9D4A3" stroke-width="4" stroke-linecap="round"></path>
+            </svg>
+          `;
+        }
+
+        return `
+          <svg viewBox="0 0 88 88" fill="none" aria-hidden="true">
+            <circle cx="44" cy="44" r="20" fill="#ffffff" stroke="#94A3B8" stroke-width="3"></circle>
+            <path d="M34 44h20M44 34v20" stroke="#94A3B8" stroke-width="3" stroke-linecap="round"></path>
+          </svg>
+        `;
+      }
+
+      stockGrid.innerHTML = stocks.map((item) => `
+        <article class="card stock-card">
+          <div class="stock-visual" style="background:${item.bg}">${renderStockArt(item.type)}</div>
+          <div class="stock-name">${item.name}</div>
+          <div class="stock-meta">${item.meta}</div>
+          <div class="stock-date">${item.date}</div>
+          <div class="stock-badge"><span>${item.badge}</span><span class="badge-dot">!</span></div>
+        </article>
+      `).join("");
+
+      recipeGrid.innerHTML = recipes.map((item) => `
+        <article class="card recipe-card">
+          <div class="recipe-art ${item.art}">
+            <span class="recipe-plate">${item.plate}</span>
+            <span class="recipe-accent a">${item.a}</span>
+            <span class="recipe-accent b">${item.b}</span>
+            <span class="recipe-accent c">${item.c}</span>
+            <div class="time-pill">${item.time}</div>
+          </div>
+          <div class="recipe-title">${item.title}</div>
+          <div class="recipe-meta">${item.meta}</div>
+        </article>
+      `).join("");
+
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          tabs.forEach((node) => node.classList.toggle("active", node === tab));
+        });
+      });
+
+      function setSheet(open) {
+        quickSheet.classList.toggle("open", open);
+        quickSheet.setAttribute("aria-hidden", String(!open));
+      }
+
+      fab.addEventListener("click", () => setSheet(true));
+      sheetBackdrop.addEventListener("click", () => setSheet(false));
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") setSheet(false);
+      });
+    </script>
+  </body>
+</html>
