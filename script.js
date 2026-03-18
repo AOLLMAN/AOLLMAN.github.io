@@ -98,7 +98,7 @@ function renderPage(profile, repos) {
   elements.factWebsite.textContent = profile.blog ? trimUrl(toExternalUrl(profile.blog)) : "GitHub Pages";
   elements.factLastPush.textContent = recentRepos[0] ? formatDate(recentRepos[0].pushed_at) : "No recent push";
 
-  elements.projectNote.textContent = `공개 저장소 ${formatNumber(repos.length)}개 중 대표 작업 ${featuredRepos.length}개를 보여줍니다.`;
+  elements.projectNote.textContent = `현재 작업 자료와 함께 공개 저장소 ${formatNumber(repos.length)}개 중 대표 작업 ${featuredRepos.length}개를 보여줍니다.`;
   elements.activityNote.textContent = `최근 푸시된 저장소 ${recentRepos.length}개를 기준으로 정렬했습니다.`;
 
   renderLanguages(topLanguages);
