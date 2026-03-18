@@ -3,229 +3,274 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LIM JAEMIN | 스케치북 포트폴리오</title>
+    <title>LIM JAEMIN | GitHub Portfolio</title>
     <meta
       name="description"
-      content="LIM JAEMIN의 스케치북 스타일 GitHub 포트폴리오입니다."
+      content="LIM JAEMIN의 GitHub 기반 개인 홈페이지입니다. 프로젝트, 활동, 기술 스택을 정리한 포트폴리오 페이지입니다."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=Space+Mono:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="page-grain" aria-hidden="true"></div>
+    <div class="page-noise" aria-hidden="true"></div>
 
-    <header class="topbar">
-      <a class="wordmark" href="#top">LIM JAEMIN</a>
-      <nav class="topnav">
-        <a href="#about">소개</a>
-        <a href="#repos">저장소</a>
-        <a href="#activity">활동</a>
-        <a href="#guestbook">방명록</a>
-      </nav>
-    </header>
+    <div class="site-shell">
+      <header class="site-header">
+        <a class="site-mark" href="#top">LIM JAEMIN</a>
+        <nav class="site-nav" aria-label="주요 섹션">
+          <a href="#about">About</a>
+          <a href="#focus">Focus</a>
+          <a href="#projects">Projects</a>
+          <a href="#activity">Activity</a>
+          <a href="#contact">Contact</a>
+        </nav>
+      </header>
 
-    <main class="canvas" id="top">
-      <section class="hero paper-panel">
-        <div class="hero-copy">
-          <p class="eyebrow">개인 페이지 / 손그림 스케치 무드</p>
-          <h1>LIM JAEMIN</h1>
-          <p class="lead" id="lead-copy">
-            GitHub에서 프로필 정보를 불러오는 중입니다.
-          </p>
+      <div class="layout" id="top">
+        <aside class="side-column">
+          <section class="panel identity-panel">
+            <p class="eyebrow">GitHub Pages Portfolio</p>
+            <h1 class="identity-name" id="display-name">LIM JAEMIN</h1>
+            <p class="identity-role">Software Engineer and Product Builder</p>
+            <p class="identity-summary" id="profile-status">
+              GitHub 프로필 정보를 불러오는 중입니다.
+            </p>
 
-          <div class="hero-actions">
-            <a
-              class="button ink"
-              id="profile-link"
-              href="https://github.com/AOLLMAN"
-              target="_blank"
-              rel="noreferrer"
-              >GitHub 열기</a
-            >
-            <a class="button paper" href="#repos">대표 저장소 보기</a>
-          </div>
-
-          <div class="mini-notes">
-            <article class="mini-note">
-              <p class="mini-label">현재 분위기</p>
-              <p class="mini-value">부드럽고 정돈된 손그림 감성</p>
-            </article>
-            <article class="mini-note">
-              <p class="mini-label">집중 분야</p>
-              <p class="mini-value" id="focus-line">실시간 데이터를 기다리는 중</p>
-            </article>
-            <article class="mini-note">
-              <p class="mini-label">활동 지역</p>
-              <p class="mini-value" id="location-line">프로필 위치 확인 중</p>
-            </article>
-            <article class="mini-note">
-              <p class="mini-label">방명록 DB</p>
-              <p class="mini-value" id="supabase-status" data-state="checking">
-                준비 상태 확인 중
-              </p>
-            </article>
-          </div>
-        </div>
-
-        <figure class="cat-card">
-          <img
-            src="assets/cat-sketch.jpg"
-            alt="종이 질감 위에 그린 부드러운 고양이 스케치"
-          />
-        </figure>
-      </section>
-
-      <section class="overview" id="about">
-        <article class="paper-panel about-panel">
-          <p class="section-label">소개</p>
-          <h2>종이 질감과 GitHub 데이터로 정리한 차분한 포트폴리오.</h2>
-          <p class="body-copy" id="bio-copy">
-            프로필 요약을 불러오는 중입니다.
-          </p>
-          <dl class="facts" id="facts-list"></dl>
-        </article>
-
-        <div class="stats-column">
-          <article class="paper-panel sticky-card tilt-left">
-            <p class="section-label">공개 저장소</p>
-            <p class="stat-value" id="stat-repos">-</p>
-          </article>
-          <article class="paper-panel sticky-card tilt-right">
-            <p class="section-label">팔로워</p>
-            <p class="stat-value" id="stat-followers">-</p>
-          </article>
-          <article class="paper-panel sticky-card tilt-left">
-            <p class="section-label">스타 수</p>
-            <p class="stat-value" id="stat-stars">-</p>
-          </article>
-          <article class="paper-panel sticky-card tilt-right">
-            <p class="section-label">주요 언어</p>
-            <p class="stat-value small" id="stat-language">-</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="paper-panel repo-panel" id="repos">
-        <div class="section-head">
-          <div>
-            <p class="section-label">대표 저장소</p>
-            <h2>스타 수와 최근 업데이트를 기준으로 고른 작업들.</h2>
-          </div>
-          <p class="section-note" id="repo-note">
-            목록은 GitHub 데이터로 자동 갱신됩니다.
-          </p>
-        </div>
-
-        <div class="repo-grid" id="repo-grid"></div>
-      </section>
-
-      <section class="paper-panel activity-panel" id="activity">
-        <div class="section-head">
-          <div>
-            <p class="section-label">최근 흐름</p>
-            <h2>공개 저장소의 최신 푸시 기록.</h2>
-          </div>
-          <p class="section-note">최근 작업을 간단한 타임라인으로 정리했습니다.</p>
-        </div>
-
-        <div class="timeline" id="timeline"></div>
-      </section>
-
-      <section class="paper-panel guestbook-panel" id="guestbook">
-        <div class="section-head">
-          <div>
-            <p class="section-label">방명록</p>
-            <h2>짧은 인사와 흔적을 남기는 작은 메모 보드.</h2>
-          </div>
-          <p class="section-note" id="guestbook-note">
-            Supabase에서 방명록을 불러오는 중입니다.
-          </p>
-        </div>
-
-        <div class="guestbook-layout">
-          <form class="guestbook-form" id="guestbook-form">
-            <label class="field">
-              <span class="field-label">이름</span>
-              <input
-                id="guestbook-name"
-                name="name"
-                type="text"
-                maxlength="40"
-                placeholder="닉네임 또는 이름"
-                required
-              />
-            </label>
-
-            <label class="field">
-              <span class="field-label">메시지</span>
-              <textarea
-                id="guestbook-message"
-                name="message"
-                rows="6"
-                maxlength="280"
-                placeholder="방문한 흔적을 남겨 주세요."
-                required
-              ></textarea>
-            </label>
-
-            <div class="form-footer">
-              <p class="form-hint">
-                최대 280자. 공개 페이지이므로 전화번호나 메일 주소 같은 개인정보는 적지 않는 편이 안전합니다.
-              </p>
-              <button class="button ink" id="guestbook-submit" type="submit">
-                남기기
-              </button>
+            <div class="cta-row">
+              <a
+                class="button button-solid"
+                id="github-link"
+                href="https://github.com/AOLLMAN"
+                target="_blank"
+                rel="noreferrer"
+                >GitHub</a
+              >
+              <a class="button button-ghost" href="#projects">Selected Work</a>
             </div>
 
-            <p class="form-status" id="guestbook-form-status" data-state="idle">
-              Supabase에 저장됩니다.
-            </p>
-          </form>
+            <dl class="stat-grid">
+              <div class="stat-card">
+                <dt>Public Repos</dt>
+                <dd id="stat-repos">-</dd>
+              </div>
+              <div class="stat-card">
+                <dt>Followers</dt>
+                <dd id="stat-followers">-</dd>
+              </div>
+              <div class="stat-card">
+                <dt>Total Stars</dt>
+                <dd id="stat-stars">-</dd>
+              </div>
+              <div class="stat-card">
+                <dt>Started In</dt>
+                <dd id="stat-years">-</dd>
+              </div>
+            </dl>
 
-          <div class="guestbook-feed" id="guestbook-list">
-            <div class="empty-state">최근 방명록이 여기에 표시됩니다.</div>
-          </div>
-        </div>
-      </section>
-    </main>
+            <div class="language-block">
+              <div class="block-head">
+                <span class="block-label">Language Pulse</span>
+                <span class="block-value" id="top-language">-</span>
+              </div>
+              <div class="chip-wrap" id="language-cloud">
+                <span class="chip is-loading">Loading</span>
+              </div>
+            </div>
+          </section>
 
-    <template id="repo-template">
-      <article class="repo-card">
-        <div class="repo-topline">
-          <h3 class="repo-title"></h3>
-          <span class="repo-language"></span>
+          <section class="panel side-nav-panel">
+            <p class="panel-label">Sections</p>
+            <nav class="anchor-nav" aria-label="본문 바로가기">
+              <a href="#about">소개</a>
+              <a href="#focus">작업 방향</a>
+              <a href="#projects">대표 프로젝트</a>
+              <a href="#activity">최근 활동</a>
+              <a href="#contact">연락처</a>
+            </nav>
+          </section>
+
+          <section class="panel contact-panel">
+            <p class="panel-label">Quick Links</p>
+            <div class="contact-list" id="contact-links">
+              <a
+                class="contact-item"
+                href="https://github.com/AOLLMAN"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <span class="contact-title">GitHub Profile</span>
+                <span class="contact-meta">@AOLLMAN</span>
+              </a>
+            </div>
+          </section>
+        </aside>
+
+        <main class="main-column">
+          <section class="panel hero-panel" id="about">
+            <div class="hero-copy">
+              <p class="eyebrow">Introduction</p>
+              <h2>차분한 정보 구조 위에, 선명한 작업 기록을 올립니다.</h2>
+              <p class="lead" id="bio-lead">
+                GitHub 프로필과 저장소 데이터를 바탕으로 현재 작업 흐름을 정리하고 있습니다.
+              </p>
+              <p class="body-copy" id="about-copy">
+                공개 저장소, 활동 내역, 사용 언어를 기반으로 개인 작업 방향을 한 페이지에서 볼 수 있게 구성했습니다.
+              </p>
+            </div>
+
+            <div class="hero-aside">
+              <div class="fact-list">
+                <article class="fact-card">
+                  <span class="fact-label">Location</span>
+                  <strong class="fact-value" id="fact-location">확인 중</strong>
+                </article>
+                <article class="fact-card">
+                  <span class="fact-label">Company</span>
+                  <strong class="fact-value" id="fact-company">확인 중</strong>
+                </article>
+                <article class="fact-card">
+                  <span class="fact-label">Website</span>
+                  <strong class="fact-value" id="fact-website">확인 중</strong>
+                </article>
+                <article class="fact-card">
+                  <span class="fact-label">Latest Push</span>
+                  <strong class="fact-value" id="fact-last-push">확인 중</strong>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel focus-panel" id="focus">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Focus</p>
+                <h2>지금 이 페이지에서 보여주고 싶은 일하는 방식</h2>
+              </div>
+              <p class="section-note" id="focus-note">
+                GitHub 공개 기록을 중심으로 업데이트됩니다.
+              </p>
+            </div>
+
+            <div class="focus-grid">
+              <article class="focus-card">
+                <p class="focus-index">01</p>
+                <h3>Structured Interface</h3>
+                <p>
+                  복잡한 정보를 한 화면에서 빠르게 읽을 수 있도록 레이아웃과 정보 밀도를 설계합니다.
+                </p>
+              </article>
+              <article class="focus-card">
+                <p class="focus-index">02</p>
+                <h3>Working Software</h3>
+                <p>
+                  보기 좋은 화면에서 멈추지 않고, 실제 데이터 연결과 배포 흐름까지 이어지는 결과물을 선호합니다.
+                </p>
+              </article>
+              <article class="focus-card">
+                <p class="focus-index">03</p>
+                <h3>Iterative Shipping</h3>
+                <p>
+                  작은 단위로 빠르게 만들고, 사용 가능한 상태로 배포하면서 점진적으로 다듬는 방식에 익숙합니다.
+                </p>
+              </article>
+            </div>
+          </section>
+
+          <section class="panel project-panel" id="projects">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Selected Work</p>
+                <h2>대표 저장소와 현재 작업 흐름</h2>
+              </div>
+              <p class="section-note" id="project-note">
+                최근 업데이트와 스타 수를 함께 반영해 정렬합니다.
+              </p>
+            </div>
+
+            <div class="project-grid" id="project-grid"></div>
+          </section>
+
+          <section class="panel activity-panel" id="activity">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Recent Activity</p>
+                <h2>최근 푸시 기준으로 본 작업 타임라인</h2>
+              </div>
+              <p class="section-note" id="activity-note">
+                GitHub 공개 저장소의 최신 푸시를 기준으로 구성합니다.
+              </p>
+            </div>
+
+            <div class="timeline" id="activity-list"></div>
+          </section>
+
+          <section class="panel contact-cta-panel" id="contact">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Contact</p>
+                <h2>프로필과 저장소에서 더 자세한 작업 맥락을 볼 수 있습니다.</h2>
+              </div>
+              <p class="section-note">
+                이 사이트는 GitHub Pages 기반으로 운영되며, 공개 저장소 변경이 반영됩니다.
+              </p>
+            </div>
+
+            <div class="closing-grid">
+              <div class="closing-copy">
+                <p class="body-copy" id="closing-copy">
+                  프로젝트 구조, 최근 활동, 사용 기술을 한 페이지로 정리해두었습니다. 협업이나 작업 맥락 확인이 필요하면 GitHub 저장소를 먼저 보는 편이 가장 빠릅니다.
+                </p>
+              </div>
+              <div class="closing-actions">
+                <a
+                  class="button button-solid"
+                  href="https://github.com/AOLLMAN"
+                  target="_blank"
+                  rel="noreferrer"
+                  >프로필 보기</a
+                >
+                <a
+                  class="button button-ghost"
+                  href="https://github.com/AOLLMAN/AOLLMAN.github.io"
+                  target="_blank"
+                  rel="noreferrer"
+                  >사이트 소스 보기</a
+                >
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <template id="project-template">
+      <article class="project-card">
+        <div class="project-meta">
+          <span class="project-language"></span>
+          <span class="project-updated"></span>
         </div>
-        <p class="repo-description"></p>
-        <div class="repo-meta">
-          <span class="repo-stars"></span>
-          <span class="repo-date"></span>
+        <h3 class="project-title"></h3>
+        <p class="project-description"></p>
+        <div class="project-footer">
+          <span class="project-stars"></span>
+          <a class="project-link" target="_blank" rel="noreferrer">Open Repo</a>
         </div>
-        <a class="repo-link" target="_blank" rel="noreferrer">저장소 열기</a>
       </article>
     </template>
 
-    <template id="timeline-template">
+    <template id="activity-template">
       <article class="timeline-item">
-        <p class="timeline-date"></p>
-        <div class="timeline-content">
+        <div class="timeline-marker"></div>
+        <div class="timeline-body">
+          <p class="timeline-date"></p>
           <h3 class="timeline-title"></h3>
           <p class="timeline-copy"></p>
         </div>
-      </article>
-    </template>
-
-    <template id="guestbook-entry-template">
-      <article class="guestbook-entry">
-        <div class="guestbook-entry-head">
-          <p class="guestbook-name"></p>
-          <p class="guestbook-date"></p>
-        </div>
-        <p class="guestbook-message"></p>
       </article>
     </template>
 
