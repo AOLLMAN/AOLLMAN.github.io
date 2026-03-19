@@ -14,7 +14,6 @@ const elements = {
   factLastPush: document.querySelector("#fact-last-push"),
   factLocation: document.querySelector("#fact-location"),
   factWebsite: document.querySelector("#fact-website"),
-  focusNote: document.querySelector("#focus-note"),
   githubLink: document.querySelector("#github-link"),
   languageCloud: document.querySelector("#language-cloud"),
   profileStatus: document.querySelector("#profile-status"),
@@ -83,9 +82,6 @@ function renderPage(profile, repos) {
   elements.bioLead.textContent = buildLeadCopy(profile);
   elements.aboutCopy.textContent = buildAboutCopy(profile, repos.length, totalStars, topLanguages);
   elements.closingCopy.textContent = buildClosingCopy(profile, repos.length, featuredRepos);
-  elements.focusNote.textContent = topLanguages.length
-    ? `${topLanguages[0].name}를 포함한 ${formatNumber(topLanguages.length)}개 언어가 공개 저장소에 반영되어 있습니다.`
-    : "공개 저장소 기준으로 작업 언어를 분석해 보여줍니다.";
 
   elements.statRepos.textContent = formatNumber(profile.public_repos);
   elements.statFollowers.textContent = formatNumber(profile.followers);
@@ -340,7 +336,6 @@ function renderErrorState(error) {
   elements.projectGrid.innerHTML = `<div class="empty-state">${message}</div>`;
   elements.activityList.innerHTML = `<div class="empty-state">${message}</div>`;
   elements.languageCloud.innerHTML = '<span class="chip">Unavailable</span>';
-  elements.focusNote.textContent = "GitHub 응답을 받을 수 없어 동적 정보가 비어 있습니다.";
   elements.projectNote.textContent = "대표 프로젝트를 불러오지 못했습니다.";
   elements.activityNote.textContent = "최근 활동을 불러오지 못했습니다.";
   elements.factLocation.textContent = "Unavailable";
